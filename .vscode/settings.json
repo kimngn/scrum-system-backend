@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"c:\\\\OC Work\\\\Summer\\\\2026\\\\recipe-backend\" ; node scripts/init-db\\.js$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node scripts/init-db\\.js --wipe$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
