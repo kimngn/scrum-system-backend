@@ -32,9 +32,19 @@ const run = async () => {
     });
 
     const project = await db.project.create({
-      name: "Agility Platform",
-      description: "Team project management tool",
+      name: "Scrum System",
+      description: "A project management system",
       status: "active",
+      startDate: new Date(),
+      endDate: null,
+      userId: user.id,
+    });
+
+    const sprint = await db.sprint.create({
+      name: "Sprint 1",
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      projectId: project.id,
     });
 
     const todoColumn = await db.projectColumn.create({
@@ -82,53 +92,6 @@ const run = async () => {
       columnId: doneColumn.id,
     });
 
-    const ingredient1 = await db.ingredient.create({
-      name: "Flour",
-      unit: "cups",
-      pricePerUnit: 2.5,
-    });
-
-    const ingredient2 = await db.ingredient.create({
-      name: "Sugar",
-      unit: "cups",
-      pricePerUnit: 1.75,
-    });
-
-    const recipe = await db.recipe.create({
-      name: "Pancakes",
-      description: "A simple pancake recipe",
-      servings: 4,
-      time: 20,
-      isPublished: true,
-      userId: user.id,
-    });
-
-    const step1 = await db.recipeStep.create({
-      stepNumber: 1,
-      instruction: "Mix flour and sugar.",
-      recipeId: recipe.id,
-    });
-
-    const step2 = await db.recipeStep.create({
-      stepNumber: 2,
-      instruction: "Cook on a hot skillet until golden.",
-      recipeId: recipe.id,
-    });
-
-    const recipeIngredient = await db.recipeIngredient.create({
-      quantity: 2,
-      recipeId: recipe.id,
-      recipeStepId: step1.id,
-      ingredientId: ingredient1.id,
-    });
-
-    const recipeIngredientWithoutStep = await db.recipeIngredient.create({
-      quantity: 1,
-      recipeId: recipe.id,
-      recipeStepId: null,
-      ingredientId: ingredient2.id,
-    });
-
     const session = await db.session.create({
       email: user.email,
       userId: user.id,
@@ -138,41 +101,31 @@ const run = async () => {
     console.log("Seed data created:", {
       userId: user.id,
       projectId: project.id,
+      sprintId: sprint.id,
       columnIds: [todoColumn.id, inProgressColumn.id, doneColumn.id],
       storyIds: [story1.id, story2.id, story3.id],
-      ingredient1Id: ingredient1.id,
-      ingredient2Id: ingredient2.id,
-      recipeId: recipe.id,
-      step1Id: step1.id,
-      step2Id: step2.id,
-      recipeIngredientId: recipeIngredient.id,
       sessionId: session.id,
     });
 
-    const foundRecipe = await db.recipe.findByPk(recipe.id, {
-      include: [
-        {
-          model: db.recipeStep,
-          as: "recipeStep",
-        },
-      ],
+    const foundProject = await db.project.findByPk(project.id, {
+      include: [{ model: db.sprint, as: "sprint" }],
     });
-    console.log("Found recipe with steps:", {
-      id: foundRecipe.id,
-      name: foundRecipe.name,
-      stepCount: foundRecipe.recipeStep.length,
+    console.log("Found project with sprints:", {
+      id: foundProject.id,
+      name: foundProject.name,
+      sprintCount: foundProject.sprint.length,
     });
 
-    await db.recipe.update(
-      { name: "Pancakes Deluxe" },
-      { where: { id: recipe.id } }
+    await db.project.update(
+      { name: "Scrum System v2" },
+      { where: { id: project.id } }
     );
-    const updatedRecipe = await db.recipe.findByPk(recipe.id);
-    console.log("Updated recipe name:", updatedRecipe.name);
+    const updatedProject = await db.project.findByPk(project.id);
+    console.log("Updated project name:", updatedProject.name);
 
-    await db.recipeStep.destroy({ where: { id: step2.id } });
-    const deletedStep = await db.recipeStep.findByPk(step2.id);
-    console.log("Deleted recipe step 2 exists?", !!deletedStep);
+    await db.sprint.destroy({ where: { id: sprint.id } });
+    const deletedSprint = await db.sprint.findByPk(sprint.id);
+    console.log("Deleted sprint exists?", !!deletedSprint);
 
     const foundSession = await db.session.findByPk(session.id);
     console.log("Found session:", {

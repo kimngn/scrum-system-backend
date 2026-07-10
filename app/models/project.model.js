@@ -6,10 +6,18 @@ module.exports = (sequelize, Sequelize) => {
     },
     description: {
       type: Sequelize.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     status: {
       type: Sequelize.STRING,
+      allowNull: false,
+    },
+    startDate: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
+    endDate: {
+      type: Sequelize.DATE,
       allowNull: true,
     },
   });

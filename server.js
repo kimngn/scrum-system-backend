@@ -42,11 +42,9 @@ app.get("/", (req, res) => {
 });
 
 require("./app/routes/auth.routes.js")(app);
-require("./app/routes/ingredient.routes")(app);
-require("./app/routes/recipe.routes")(app);
-require("./app/routes/recipeStep.routes")(app);
-require("./app/routes/recipeIngredient.routes")(app);
 require("./app/routes/user.routes")(app);
+require("./app/routes/project.routes")(app);
+require("./app/routes/sprint.routes")(app);
 require("./app/routes/userStory.routes")(app);
 
 // set port, listen for requests
