@@ -23,6 +23,10 @@ exports.create = async (req, res) => {
     const error = new Error("Password cannot be empty for user!");
     error.statusCode = 400;
     throw error;
+  } else if (req.body.role === undefined) {
+    const error = new Error("Role cannot be empty for user!");
+    error.statusCode = 400;
+    throw error;
   }
 
   try {
@@ -49,6 +53,7 @@ exports.create = async (req, res) => {
       email: req.body.email,
       password: hash,
       salt: salt,
+      role: req.body.role,
     };
 
     try {
@@ -203,8 +208,7 @@ exports.deleteAll = async (req, res) => {
     res.send({ message: `${number} People were deleted successfully!` });
   } catch (err) {
     res.status(500).send({
-      message:
-        err.message || "Some error occurred while removing all people.",
+      message: err.message || "Some error occurred while removing all people.",
     });
   }
 };

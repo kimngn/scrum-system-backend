@@ -5,12 +5,19 @@ const { getSalt, hashPassword } = require("../app/authentication/crypto");
 
 const args = process.argv.slice(2);
 const help = args.includes("--help") || args.includes("-h");
-const wipe = args.includes("--wipe") || args.includes("--force") || !args.includes("--no-wipe");
+const wipe =
+  args.includes("--wipe") ||
+  args.includes("--force") ||
+  !args.includes("--no-wipe");
 
 if (help) {
   console.log("Usage: node scripts/init-db.js [--no-wipe] [--help]");
-  console.log("  --no-wipe   Preserve existing tables and only sync without dropping them.");
-  console.log("  --wipe      Drop and recreate all tables before seeding (default).");
+  console.log(
+    "  --no-wipe   Preserve existing tables and only sync without dropping them.",
+  );
+  console.log(
+    "  --wipe      Drop and recreate all tables before seeding (default).",
+  );
   process.exit(0);
 }
 
@@ -29,6 +36,7 @@ const run = async () => {
       email: "test@example.com",
       password: passwordHash,
       salt: salt,
+      role: "admin",
     });
 
     const project = await db.project.create({
@@ -71,7 +79,7 @@ const run = async () => {
 
     await db.project.update(
       { name: "Scrum System v2" },
-      { where: { id: project.id } }
+      { where: { id: project.id } },
     );
     const updatedProject = await db.project.findByPk(project.id);
     console.log("Updated project name:", updatedProject.name);
