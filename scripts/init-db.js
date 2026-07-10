@@ -31,6 +31,57 @@ const run = async () => {
       salt: salt,
     });
 
+    const project = await db.project.create({
+      name: "Agility Platform",
+      description: "Team project management tool",
+      status: "active",
+    });
+
+    const todoColumn = await db.projectColumn.create({
+      title: "To Do",
+      displayOrder: 1,
+      projectId: project.id,
+    });
+
+    const inProgressColumn = await db.projectColumn.create({
+      title: "In Progress",
+      displayOrder: 2,
+      projectId: project.id,
+    });
+
+    const doneColumn = await db.projectColumn.create({
+      title: "Done",
+      displayOrder: 3,
+      projectId: project.id,
+    });
+
+    const story1 = await db.userStory.create({
+      title: "View storyboard by status",
+      description: "As a user, I want to see items organized in columns.",
+      priority: "High",
+      storyPoint: 3,
+      projectId: project.id,
+      columnId: todoColumn.id,
+    });
+
+    const story2 = await db.userStory.create({
+      title: "Create a new project",
+      description: "As a user, I want to create a new project.",
+      priority: "Medium",
+      storyPoint: 5,
+      projectId: project.id,
+      columnId: inProgressColumn.id,
+    });
+
+    const story3 = await db.userStory.create({
+      title: "Login page",
+      description: "As a user, I want to log into the system.",
+      priority: "High",
+      storyPoint: 2,
+      projectId: project.id,
+      columnId: doneColumn.id,
+    });
+
     const ingredient1 = await db.ingredient.create({
       name: "Flour",
       unit: "cups",
@@ -86,6 +137,9 @@ const run = async () => {
 
     console.log("Seed data created:", {
       userId: user.id,
+      projectId: project.id,
+      columnIds: [todoColumn.id, inProgressColumn.id, doneColumn.id],
+      storyIds: [story1.id, story2.id, story3.id],
       ingredient1Id: ingredient1.id,
       ingredient2Id: ingredient2.id,
       recipeId: recipe.id,
