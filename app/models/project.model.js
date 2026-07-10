@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Recipe = sequelize.define("recipe", {
+  const Project = sequelize.define("project", {
     name: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -8,18 +8,18 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    servings: {
-      type: Sequelize.INTEGER,
+    status: {
+      type: Sequelize.STRING,
       allowNull: false,
     },
-    time: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+    startDate: {
+      type: Sequelize.DATE,
+      allowNull: true,
     },
-    isPublished: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
+    endDate: {
+      type: Sequelize.DATE,
+      allowNull: true,
     },
   });
-  return Recipe;
+  return Project;
 };
