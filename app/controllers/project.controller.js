@@ -98,3 +98,14 @@ exports.deleteAll = async (req, res) => {
     res.status(500).send({ message: err.message || "Error deleting all projects." });
   }
 };
+exports.findAll = async (req, res) => {
+  try {
+    const data = await Project.findAll({
+      include: [{ model: Sprint, as: "sprint", required: false }],
+      order: [["name", "ASC"]],
+    });
+    res.send(data);
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error retrieving projects." });
+  }
+};

@@ -91,3 +91,14 @@ exports.deleteAll = async (req, res) => {
     res.status(500).send({ message: err.message || "Error deleting all sprints." });
   }
 };
+
+exports.findAll = async (req, res) => {
+  try {
+    const data = await Sprint.findAll({
+      order: [["startDate", "ASC"]],
+    });
+    res.send(data);
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error retrieving sprints." });
+  }
+};
