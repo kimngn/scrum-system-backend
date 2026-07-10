@@ -31,13 +31,17 @@ exports.create = async (req, res) => {
 
   try {
     const data = await User.findOne({
+      // returns null if no user is found
       where: {
         email: req.body.email,
       },
     });
 
     if (data) {
-      return "This email is already in use.";
+      // if an existing user is found
+      return res.status(409).send({
+        message: `This email is already in use.`,
+      });
     }
 
     console.log("email not found");
@@ -75,7 +79,7 @@ exports.create = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        id: user.id,
+        id: userId,
         token: token,
       };
       res.send(userInfo);
@@ -86,7 +90,9 @@ exports.create = async (req, res) => {
       });
     }
   } catch (err) {
-    return err.message || "Error retrieving User with email=" + req.body.email;
+    return res.status(500).send({
+      message: `Error retrieving User with email = ` + req.body.email,
+    });
   }
 };
 
