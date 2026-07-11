@@ -23,17 +23,25 @@ exports.create = async (req, res) => {
     const error = new Error("Password cannot be empty for user!");
     error.statusCode = 400;
     throw error;
+  } else if (req.body.role === undefined) {
+    const error = new Error("Role cannot be empty for user!");
+    error.statusCode = 400;
+    throw error;
   }
 
   try {
     const data = await User.findOne({
+      // returns null if no user is found
       where: {
         email: req.body.email,
       },
     });
 
     if (data) {
-      return "This email is already in use.";
+      // if an existing user is found
+      return res.status(409).send({
+        message: `This email is already in use.`,
+      });
     }
 
     console.log("email not found");
@@ -49,6 +57,7 @@ exports.create = async (req, res) => {
       email: req.body.email,
       password: hash,
       salt: salt,
+      role: req.body.role,
     };
 
     try {
@@ -70,7 +79,7 @@ exports.create = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        id: user.id,
+        id: userId,
         token: token,
       };
       res.send(userInfo);
@@ -81,7 +90,9 @@ exports.create = async (req, res) => {
       });
     }
   } catch (err) {
-    return err.message || "Error retrieving User with email=" + req.body.email;
+    return res.status(500).send({
+      message: `Error retrieving User with email = ` + req.body.email,
+    });
   }
 };
 
@@ -203,8 +214,7 @@ exports.deleteAll = async (req, res) => {
     res.send({ message: `${number} People were deleted successfully!` });
   } catch (err) {
     res.status(500).send({
-      message:
-        err.message || "Some error occurred while removing all people.",
+      message: err.message || "Some error occurred while removing all people.",
     });
   }
 };
