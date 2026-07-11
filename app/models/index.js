@@ -18,6 +18,8 @@ db.project = require("./project.model.js")(sequelize, Sequelize);
 db.sprint = require("./sprint.model.js")(sequelize, Sequelize);
 db.session = require("./session.model.js")(sequelize, Sequelize);
 db.user = require("./user.model.js")(sequelize, Sequelize);
+db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
+db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session, {
@@ -54,5 +56,40 @@ db.sprint.belongsTo(db.project, {
   foreignKey: { allowNull: false },
   onDelete: "CASCADE",
 });
-  
+
+// foreign key for projectColumn
+db.project.hasMany(db.projectColumn, {
+  as: "column",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+db.projectColumn.belongsTo(db.project, {
+  as: "project",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+
+// foreign keys for userStory
+db.project.hasMany(db.userStory, {
+  as: "story",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+db.userStory.belongsTo(db.project, {
+  as: "project",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+
+db.projectColumn.hasMany(db.userStory, {
+  as: "story",
+  foreignKey: { name: "columnId", allowNull: false },
+  onDelete: "CASCADE",
+});
+db.userStory.belongsTo(db.projectColumn, {
+  as: "column",
+  foreignKey: { name: "columnId", allowNull: false },
+  onDelete: "CASCADE",
+});
+
 module.exports = db;
