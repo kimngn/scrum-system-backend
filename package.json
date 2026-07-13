@@ -4,7 +4,9 @@
   "description": "Recipe Node.js with Rest API",
   "main": "server.js",
   "scripts": {
-    "test": "jest --",
+    "test": "vitest",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "start": "node server.js",
     "init-db": "node scripts/init-db.js",
     "init-db:wipe": "node scripts/init-db.js --wipe",
@@ -30,5 +32,9 @@
     "parse": "^4.0.1",
     "sequelize": "^6.19.0",
     "supertest": "^6.3.3"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
   }
 }
