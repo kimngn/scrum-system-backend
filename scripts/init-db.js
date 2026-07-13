@@ -91,33 +91,6 @@ const run = async () => {
       projectId: project.id,
     });
 
-    const story1 = await db.userStory.create({
-      title: "View storyboard by status",
-      description: "As a user, I want to see items organized in columns.",
-      priority: "High",
-      storyPoint: 3,
-      projectId: project.id,
-      columnId: todoColumn.id,
-    });
-
-    const story2 = await db.userStory.create({
-      title: "Create a new project",
-      description: "As a user, I want to create a new project.",
-      priority: "Medium",
-      storyPoint: 5,
-      projectId: project.id,
-      columnId: inProgressColumn.id,
-    });
-
-    const story3 = await db.userStory.create({
-      title: "Login page",
-      description: "As a user, I want to log into the system.",
-      priority: "High",
-      storyPoint: 2,
-      projectId: project.id,
-      columnId: doneColumn.id,
-    });
-
     const session = await db.session.create({
       email: user.email,
       userId: user.id,
@@ -136,7 +109,6 @@ const run = async () => {
         testingColumn.id,
         doneColumn.id,
       ],
-      storyIds: [story1.id, story2.id, story3.id],
       sessionId: session.id,
     });
 
