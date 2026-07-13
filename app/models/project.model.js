@@ -20,6 +20,11 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.DATE,
       allowNull: true,
     },
+    userId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
   });
   return Project;
+
 };
