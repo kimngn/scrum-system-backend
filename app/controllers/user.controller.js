@@ -75,6 +75,7 @@ exports.create = async (req, res) => {
       const sessionData = await Session.create(session);
       let sessionId = sessionData.id;
       let token = await encrypt(sessionId);
+
       let userInfo = {
         email: user.email,
         firstName: user.firstName,
@@ -159,11 +160,18 @@ exports.findByEmail = async (req, res) => {
 // Update a User by the id in the request
 exports.update = async (req, res) => {
   const id = req.params.id;
-
+  // Only update user so pass and salt don't get touched.
+  const userInfo = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    role: req.body.role,
+  };
   try {
-    const number = await User.update(req.body, {
+    const number = await User.update(userInfo, {
       where: { id: id },
     });
+
     if (number == 1) {
       res.send({
         message: "User was updated successfully.",
@@ -176,6 +184,41 @@ exports.update = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       message: err.message || "Error updating User with id =" + id,
+    });
+  }
+};
+
+// Lance's solution to password issue
+exports.updatePassword = async (req, res) => {
+  const id = req.params.id;
+  if (req.body.password === undefined) {
+    const error = new Error("Password cannot be empty for user!");
+    error.statusCode = 400;
+    throw error;
+  } // Create new salt and has for new password.
+  try {
+    let salt = await getSalt();
+    let hash = await hashPassword(req.body.password, salt);
+
+    const number = await User.update(
+      { password: hash, salt: salt },
+      {
+        where: { id: id },
+      },
+    );
+
+    if (number == 1) {
+      res.send({
+        message: "User was deleted successfully!",
+      });
+    } else {
+      res.send({
+        message: `Cannot delete User with id = ${id}. Maybe User was not found!`,
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Could not delete User with id = " + id,
     });
   }
 };
