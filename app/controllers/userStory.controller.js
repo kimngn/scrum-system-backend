@@ -7,7 +7,9 @@ exports.findAllForProject = async (req, res) => {
   const projectId = req.params.projectId;
   try {
     const data = await UserStory.findAll({
+      // Only get stories for this project.
       where: { projectId: projectId },
+      // Include the column info for each story.
       include: [{ model: ProjectColumn, as: "column" }],
     });
     res.send(data);
@@ -15,6 +17,68 @@ exports.findAllForProject = async (req, res) => {
     res.status(500).send({
       message:
         err.message || "Some error occurred while retrieving the stories.",
+    });
+  }
+};
+
+// Create and save a new story
+exports.create = async (req, res) => {
+  const story = {
+    title: req.body.title,
+    description: req.body.description,
+    priority: req.body.priority,
+    storyPoint: req.body.storyPoint,
+    projectId: req.body.projectId,
+    columnId: req.body.columnId,
+  };
+
+  try {
+    const data = await UserStory.create(story);
+    res.send(data);
+  } catch (err) {
+    res.status(400).send({
+      message: err.message || "Some error occurred while creating the story.",
+    });
+  }
+};
+
+exports.update = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+   // Update a story by the id.
+    await UserStory.update(req.body, {
+      where: { id: id },
+    });
+    // Finds the updated story by its id and sends it back.
+    const data = await UserStory.findByPk(id);
+    res.send(data);
+  } catch (err) {
+    res.status(400).send({
+      message: err.message || "Error updating story with id = " + id,
+    });
+  }
+};
+
+exports.delete = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    // Delete the story with the given id
+    const number = await UserStory.destroy({
+      where: { id: id },
+    });
+    // If one story is deleted, send success message.
+    if (number == 1) {
+      res.send({ message: "User story was deleted successfully!" });
+    } else {
+      res.status(404).send({
+        message: `Cannot find user story with id = ${id}.`,
+      });
+    }
+  } catch (err) {
+    res.status(400).send({
+      message: err.message || "Could not delete story with id = " + id,
     });
   }
 };

@@ -55,21 +55,39 @@ const run = async () => {
       projectId: project.id,
     });
 
+    const backlogColumn = await db.projectColumn.create({
+      title: "Backlog",
+      displayOrder: 1,
+      projectId: project.id,
+    });
+
     const todoColumn = await db.projectColumn.create({
       title: "To Do",
-      displayOrder: 1,
+      displayOrder: 2,
       projectId: project.id,
     });
 
     const inProgressColumn = await db.projectColumn.create({
       title: "In Progress",
-      displayOrder: 2,
+      displayOrder: 3,
+      projectId: project.id,
+    });
+
+    const readyForTestColumn = await db.projectColumn.create({
+      title: "Ready for Test",
+      displayOrder: 4,
+      projectId: project.id,
+    });
+
+    const testingColumn = await db.projectColumn.create({
+      title: "Testing",
+      displayOrder: 5,
       projectId: project.id,
     });
 
     const doneColumn = await db.projectColumn.create({
       title: "Done",
-      displayOrder: 3,
+      displayOrder: 6,
       projectId: project.id,
     });
 
@@ -110,7 +128,14 @@ const run = async () => {
       userId: user.id,
       projectId: project.id,
       sprintId: sprint.id,
-      columnIds: [todoColumn.id, inProgressColumn.id, doneColumn.id],
+      columnIds: [
+        backlogColumn.id,
+        todoColumn.id,
+        inProgressColumn.id,
+        readyForTestColumn.id,
+        testingColumn.id,
+        doneColumn.id,
+      ],
       storyIds: [story1.id, story2.id, story3.id],
       sessionId: session.id,
     });
