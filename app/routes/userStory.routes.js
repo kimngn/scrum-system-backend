@@ -5,5 +5,14 @@ module.exports = (app) => {
   // Retrieve all stories for a project
   router.get("/projects/:projectId/stories", UserStory.findAllForProject);
 
+  // Create a new story
+  router.post("/stories", UserStory.create);
+
+  // Update a story
+  router.put("/stories/:id", UserStory.update);
+
+  // Delete a story
+  router.delete("/stories/:id", UserStory.delete);
+
   app.use("/recipeapi", router);
 };
