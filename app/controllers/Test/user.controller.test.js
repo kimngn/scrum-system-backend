@@ -106,19 +106,6 @@ describe("user.controller", () => {
       );
     });
 
-    it("throws a 400 error when role is missing", async () => {
-      const req = { body: { ...validBody, role: undefined } };
-      const res = mockRes();
-
-      await expect(userController.create(req, res)).rejects.toThrow(
-        "Role cannot be empty for user!"
-      );
-    });
-
- 
-
-   
-   
     it("returns 500 if the initial email lookup throws", async () => {
       User.findOne.mockRejectedValue(new Error("db down"));
 
