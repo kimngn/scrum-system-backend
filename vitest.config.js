@@ -8,5 +8,13 @@ export default defineConfig({
       // This is a test-only dummy key — never use it outside tests.
       SECRET_KEY: "dGVzdHNlY3JldGtleWZvcnRlc3Rz",
     },
+
+    coverage: {
+      reporter: [
+        "text",
+        "html",
+        "json-summary"
+      ],
+    },
   },
 });
