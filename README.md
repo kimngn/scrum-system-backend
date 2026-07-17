@@ -1,5 +1,7 @@
 # Recipe Backend with Node
 
+![Coverage](./badges/coverage.svg)
+
 This application allows users to create and maintain a list of recipes that have steps and ingredients. Please visit https://github.com/mattmiller64/recipe-frontend for the Vue 3 frontend repository.
 
 #### Please note:
@@ -21,7 +23,6 @@ npm install
 ```
 
 3. Configure **Apache** to point to **Node** for API requests.
-
    - We recommend using XAMPP to serve this project.
    - In XAMPP, find the **Edit/Configure** button for **Apache**.
    - Edit the **conf** file, labeled **httpd.conf**.
@@ -43,12 +44,10 @@ npm install
    - **Restart Apache** and exit XAMPP.
 
 4. Make a local **recipe_db** database.
-
    - Create a schema/database.
    - The Sequelize in this project will make all the tables for you.
 
 5. Add a local **.env** file and make sure that the **database** variables are correct.
-
    - DB_HOST = 'localhost'
    - DB_PW = '**your-local-database-password**'
    - DB_USER = '**your-local-database-username**' (usually "root")
@@ -57,20 +56,19 @@ npm install
 
 6. Initialize the database (optional).
 
-   This project includes a seed and verification script at `scripts/init-db.js`.
-   It creates sample data and runs a quick CRUD check.
+   This project includes a seed and verification script at `scripts/init-db.js`. It creates sample data and runs a quick CRUD check.
 
 ```
 npm run init-db
 ```
 
-   If you want to preserve existing tables and avoid dropping them, run:
+If you want to preserve existing tables and avoid dropping them, run:
 
 ```
 npm run init-db:keep
 ```
 
-   To force a full table wipe and recreate everything explicitly:
+To force a full table wipe and recreate everything explicitly:
 
 ```
 npm run init-db:wipe
