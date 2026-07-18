@@ -46,6 +46,7 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/project.routes")(app);
 require("./app/routes/sprint.routes")(app);
 require("./app/routes/userStory.routes")(app);
+require("./app/routes/repo.routes.js")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3200;

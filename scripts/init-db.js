@@ -30,25 +30,23 @@ const run = async () => {
     const salt = await getSalt();
     const passwordHash = await hashPassword("Test1234!", salt);
 
-    const user = await db.user.bulkCreate([
-      {
-        firstName: "Test",
-        lastName: "User",
-        email: "test@example.com",
-        password: passwordHash,
-        salt: salt,
-        role: "admin",
-      },
-      {
-        firstName: "Kim",
-        lastName: "Nguyen",
-        email: "kim@example.com",
-        password: passwordHash,
-        salt: salt,
-        role: "admin",
-      }, ]
-  );
+    const user = await db.user.create({
+      firstName: "Test",
+      lastName: "User",
+      email: "test@example.com",
+      password: passwordHash,
+      salt: salt,
+      role: "admin",
+    });
 
+    const user2 = await db.user.create({
+      firstName: "Kim",
+      lastName: "Nguyen",
+      email: "kim@example.com",
+      password: passwordHash,
+      salt: salt,
+      role: "admin",
+    });
 
     const project = await db.project.create({
       name: "Scrum System",

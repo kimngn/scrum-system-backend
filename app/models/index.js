@@ -20,6 +20,7 @@ db.session = require("./session.model.js")(sequelize, Sequelize);
 db.user = require("./user.model.js")(sequelize, Sequelize);
 db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
 db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
+db.repo = require("./repo.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session, {
