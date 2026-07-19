@@ -6,7 +6,7 @@ module.exports = (app) => {
   router.post("/repos/", [authenticateRoute], repo.create);
   router.get("/repos/", [authenticateRoute], repo.findAll);
   router.get(
-    "/repos/user/:userId",
+    "/repos/project/:projectId",
     [authenticateRoute],
     repo.findAllForProject,
   );
