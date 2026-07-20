@@ -1,6 +1,7 @@
 const db = require("../models");
 const Project = db.project;
 const Sprint = db.sprint;
+const ProjectMembership = db.projectMembership;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
@@ -34,8 +35,18 @@ exports.create = async (req, res) => {
 exports.findAllForUser = async (req, res) => {
   const userId = req.params.userId;
   try {
-    const data = await Project.findAll({
+    const membershipProjectIds = await ProjectMembership.findAll({
       where: { userId: userId },
+      attributes: ["projectId"],
+    }).then(rows => rows.map(r => r.projectId));
+
+    const data = await Project.findAll({
+      where: {
+        [Op.or]: [
+          { userId: userId },
+          { id: { [Op.in]: membershipProjectIds } },
+        ],
+      },
       include: [{ model: Sprint, as: "sprint", required: false }],
       order: [["name", "ASC"]],
     });
