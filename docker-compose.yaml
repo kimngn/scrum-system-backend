@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: scrum-system-backend
+    ports:
+      - "3200:3200"
+    environment:
+      APP_ENV: development
+    volumes:
+      - .:/app
