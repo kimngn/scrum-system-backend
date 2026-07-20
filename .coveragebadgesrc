@@ -1,0 +1,12 @@
+{
+  "source": "coverage/coverage-summary.json",
+  "input": "coverage",
+  "output": "coverage",
+  "attribute": "total.lines.pct",
+  "badgeType": "flat",
+  "colors": {
+    "high": "brightgreen",
+    "medium": "yellow",
+    "low": "red"
+  }
+}
