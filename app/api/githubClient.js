@@ -1,10 +1,12 @@
 // https://axios.rest/pages/getting-started/first-steps
 // https://axios.rest/pages/advanced/authentication.html
 
+// anything that needs to directly go through GitHub has to be done here since api has a token
 const axios = require("axios");
 
 const api = axios.create({ baseURL: "https://api.github.com" });
 
+// authenticate
 api.interceptors.request.use((config) => {
   const token = process.env.GITHUB_TOKEN;
   if (token) {
@@ -12,6 +14,17 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+const validateRepo = async (repoUrl) => {
+  // just getRepo but with different error?
+  try {
+    const response = await api.get(repoUrl);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw new Error("Repository doesn't exist");
+  }
+};
 
 const getRepo = async () => {
   try {
@@ -45,4 +58,4 @@ const getPullRequests = async () => {
   }
 };
 
-module.exports = { getRepo, getBranches, getPullRequests };
+module.exports = { validateRepo, getRepo, getBranches, getPullRequests };
