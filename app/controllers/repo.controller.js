@@ -73,7 +73,9 @@ exports.findOne = async (req, res) => {
 
 exports.update = async (req, res) => {
   const id = req.params.id;
+
   try {
+    await validateRepo(req.body.repoUrl);
     const number = await Repo.update(req.body, { where: { id: id } });
     if (number == 1) {
       res.send({ message: "Repo was updated successfully." });
