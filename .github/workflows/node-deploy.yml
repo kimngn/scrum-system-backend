@@ -1,7 +1,8 @@
 name: AWS DEPLOY TO STAGING
-# turn off deploy to AWS
 
 on:
+  workflow_dispatch:
+
   pull_request:
     types: [closed]
     branches:
@@ -10,29 +11,50 @@ on:
 jobs:
   aws-deploy:
     runs-on: ubuntu-latest
+
     env:
       DB_HOST: ${{ secrets.AWS_DB_HOST }}
-      DB_PW: ${{ secrets.AWS_DB_PW}}
+      DB_PW: ${{ secrets.AWS_DB_PW }}
       DB_USER: ${{ secrets.AWS_DB_USER }}
       DB_NAME: ${{ secrets.AWS_DB_NAME }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout dev
+        uses: actions/checkout@v4
         with:
           ref: dev
-      - uses: actions/setup-node@v1
-      - run: npm install
 
-      - run: |
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
+      - name: Debug required secrets
+        run: |
+          test -n "${{ secrets.SERVER_SSH_KEY }}" || (echo "SERVER_SSH_KEY is missing" && exit 1)
+          test -n "${{ secrets.REMOTE_HOST }}" || (echo "REMOTE_HOST is missing" && exit 1)
+          test -n "${{ secrets.AWS_DB_HOST }}" || (echo "AWS_DB_HOST is missing" && exit 1)
+          test -n "${{ secrets.AWS_DB_USER }}" || (echo "AWS_DB_USER is missing" && exit 1)
+          test -n "${{ secrets.AWS_DB_NAME }}" || (echo "AWS_DB_NAME is missing" && exit 1)
+          echo "Required secrets exist"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create .env
+        run: |
           touch .env
-          echo DB_HOST = "$DB_HOST" >> .env
-          echo DB_PW = "$DB_PW" >> .env
-          echo DB_USER = "$DB_USER" >> .env
-          echo DB_NAME = "$DB_NAME" >> .env
-          echo SECRET_KEY = "$SECRET_KEY" >> .env
+          echo "DB_HOST=$DB_HOST" >> .env
+          echo "DB_PW=$DB_PW" >> .env
+          echo "DB_USER=$DB_USER" >> .env
+          echo "DB_NAME=$DB_NAME" >> .env
+          echo "SECRET_KEY=$SECRET_KEY" >> .env
+          echo "EMAIL_SERVICE=${{ secrets.EMAIL_SERVICE }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
 
-      - run: npm run bundle
+      - name: Bundle app
+        run: npm run bundle
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v2.1.1
@@ -40,21 +62,19 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: "-rltgoDzvO --delete"
           SOURCE: "deploy/"
-          REMOTE_HOST: "recipe.eaglesoftwareteam.com"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ubuntu
-          TARGET: "nodeapps/recipe-backend"
-      - name: Execute SSH commmands on remote server
+          TARGET: "nodeapps/scrum-system-backend"
+
+      - name: Restart backend on EC2
         uses: JimCronqvist/action-ssh@master
-        env:
-          NAME: "Root"
         with:
-          hosts: ""
+          hosts: "ubuntu@${{ secrets.REMOTE_HOST }}"
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
           debug: false
           command: |
-            cd nodeapps/recipe-backend
-            npm install
-            sudo systemctl stop recipe-backend
-            sudo cp recipe-backend.service /lib/systemd/system/recipe-backend.service
+            cd nodeapps/scrum-system-backend
+            npm ci
+            sudo cp scrum-system-backend.service /lib/systemd/system/scrum-system-backend.service
             sudo systemctl daemon-reload
-            sudo systemctl start recipe-backend
+            sudo systemctl restart scrum-system-backend
