@@ -84,11 +84,6 @@ db.userStory.belongsTo(db.project, {
 });
 
 db.userStory.belongsTo(db.user, {
-  foreignKey: "assignedUser_id",
-  as: "assignee"
-});
-
-db.userStory.belongsTo(db.user, {
   foreignKey: "createdBy_id",
   as: "creator"
 });

@@ -53,11 +53,6 @@ module.exports = (sequelize, Sequelize) => {
      Project_id: {
       type: Sequelize.INTEGER
     },
-
-    assignedUser_id: {
-      type: Sequelize.INTEGER
-    },
-
     createdBy_id: {
       type: Sequelize.INTEGER
     },
