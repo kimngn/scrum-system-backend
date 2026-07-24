@@ -1,0 +1,17 @@
+[Unit]
+Description=NodeJS scrum-system-backend
+After=network.target mysql.service
+Requires=mysql.service
+ 
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/nodeapps/scrum-system-backend/
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+ 
+[Install]
+WantedBy=multi-user.target
+
