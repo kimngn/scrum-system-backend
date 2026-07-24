@@ -83,6 +83,16 @@ db.userStory.belongsTo(db.project, {
   onDelete: "CASCADE",
 });
 
+db.userStory.belongsTo(db.user, {
+  foreignKey: "createdBy_id",
+  as: "creator"
+});
+
+db.userStory.belongsTo(db.user, {
+  foreignKey: "updatedBy_id",
+  as: "updater"
+});
+
 db.projectColumn.hasMany(db.userStory, {
   as: "story",
   foreignKey: { name: "columnId", allowNull: false },
