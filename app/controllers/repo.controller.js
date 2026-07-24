@@ -1,9 +1,10 @@
 const db = require("../models");
 const Repo = db.repo;
 const Op = db.Sequelize.Op;
+const { validateRepo } = require("../api/githubClient");
 
 exports.create = async (req, res) => {
-  // validate request's contents
+  // validate request's contents (make sure they are not empty)
   if (req.body.name === undefined) {
     return res.status(400).send({ message: "Name cannot be empty!" });
   } else if (req.body.repoUrl === undefined) {
@@ -18,7 +19,10 @@ exports.create = async (req, res) => {
     projectId: req.body.projectId,
   };
 
+  // validate if GitHub URL exists through githubClient
   try {
+    await validateRepo(req.body.repoUrl);
+
     const data = await Repo.create(repo);
     res.send(data);
   } catch (err) {
@@ -69,7 +73,9 @@ exports.findOne = async (req, res) => {
 
 exports.update = async (req, res) => {
   const id = req.params.id;
+
   try {
+    await validateRepo(req.body.repoUrl);
     const number = await Repo.update(req.body, { where: { id: id } });
     if (number == 1) {
       res.send({ message: "Repo was updated successfully." });
