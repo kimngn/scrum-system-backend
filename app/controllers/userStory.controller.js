@@ -21,22 +21,6 @@ exports.findAllForProject = async (req, res) => {
   }
 };
 
-//find all stories 
-exports.findAll = async (req, res) => {
-  try {
-    const count = await UserStory.count();
-    const stories = await UserStory.findAll();
-    res.send(stories);
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).send({
-      message: err.message
-    });
-  }
-};
-
-
 // Create and save a new story
 exports.create = async (req, res) => {
   const story = {
