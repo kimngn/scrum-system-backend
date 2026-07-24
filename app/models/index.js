@@ -93,6 +93,7 @@ db.userStory.belongsTo(db.projectColumn, {
   foreignKey: { name: "columnId", allowNull: false },
   onDelete: "CASCADE",
 });
+
 // foreign keys for projectMembership
 db.project.hasMany(db.projectMembership, {
   as: "membership",

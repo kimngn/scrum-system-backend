@@ -5,6 +5,9 @@ module.exports = (app) => {
   // Retrieve all stories for a project
   router.get("/projects/:projectId/stories", UserStory.findAllForProject);
 
+  //get all stories
+  router.get("/stories", UserStory.findAll);
+
   // Create a new story
   router.post("/stories", UserStory.create);
 
