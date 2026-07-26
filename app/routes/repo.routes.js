@@ -15,5 +15,5 @@ module.exports = (app) => {
   router.delete("/repos/:id", [authenticateRoute], repo.delete);
   router.delete("/repos/", [authenticateRoute], repo.deleteAll);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };

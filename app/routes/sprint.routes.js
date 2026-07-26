@@ -11,5 +11,5 @@ module.exports = (app) => {
   router.delete("/sprints/:id", [authenticateRoute], sprint.delete);
   router.delete("/sprints/", [authenticateRoute], sprint.deleteAll);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };

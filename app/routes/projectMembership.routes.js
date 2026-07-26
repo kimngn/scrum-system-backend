@@ -7,5 +7,5 @@ module.exports = (app) => {
   router.get("/projectmemberships/project/:projectId", [authenticateRoute], projectMembership.findAllForProject);
   router.delete("/projectmemberships/:id", [authenticateRoute], projectMembership.delete);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };
