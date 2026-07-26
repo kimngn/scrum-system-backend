@@ -21,7 +21,11 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
 db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
 db.repo = require("./repo.model.js")(sequelize, Sequelize);
-db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequelize);
+db.history = require("./history.model.js")(sequelize, Sequelize);
+db.projectMembership = require("./projectMembership.model.js")(
+  sequelize,
+  Sequelize,
+);
 
 // foreign key for session
 db.user.hasMany(db.session, {
@@ -41,7 +45,20 @@ db.user.hasMany(db.project, {
   foreignKey: { allowNull: true },
   onDelete: "CASCADE",
 });
+
 db.project.belongsTo(db.user, {
+  as: "user",
+  foreignKey: { allowNull: true },
+  onDelete: "CASCADE",
+});
+
+db.user.hasMany(db.history, {
+  as: "history",
+  foreignKey: { allowNull: true },
+  onDelete: "CASCADE",
+});
+
+db.history.belongsTo(db.user, {
   as: "user",
   foreignKey: { allowNull: true },
   onDelete: "CASCADE",

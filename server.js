@@ -48,6 +48,7 @@ require("./app/routes/sprint.routes")(app);
 require("./app/routes/userStory.routes")(app);
 require("./app/routes/github.routes")(app); // passes app to Github route file
 require("./app/routes/repo.routes.js")(app);
+require("./app/routes/history.routes.js")(app);
 require("./app/routes/projectMembership.routes.js")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 3200;
