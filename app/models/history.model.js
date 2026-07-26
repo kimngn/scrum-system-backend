@@ -22,11 +22,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     entityId: {
       type: Sequelize.INTEGER,
-      allowNull: true,
-    },
-    projectId: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
+      allowNull: false,
     },
     fieldName: {
       type: Sequelize.STRING,

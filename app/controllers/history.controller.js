@@ -19,7 +19,6 @@ exports.create = async (req, res) => {
     action: req.body.action,
     userId: req.body.userId,
     entityId: req.body.entityId,
-    projectId: req.body.projectId,
     newValue: req.body.newValue,
     oldValue: req.body.oldValue,
     entityType: req.body.entityType,
@@ -38,7 +37,7 @@ exports.findProjectActionsByProjectId = async (req, res) => {
   const projectId = req.params.projectId;
   try {
     const data = await History.findAll({
-      where: { projectId: projectId, entityType: "project" },
+      where: { entityId: projectId, entityType: "project" },
       order: [["createdAt", "ASC"]],
       include: [
         // able to do this because of foreign key + belongsTo
@@ -58,11 +57,11 @@ exports.findProjectActionsByProjectId = async (req, res) => {
   }
 };
 
-exports.findSprintActionsByProjectId = async (req, res) => {
-  const projectId = req.params.projectId;
+exports.findSprintActionsBySprintId = async (req, res) => {
+  const sprintId = req.params.sprintId;
   try {
     const data = await History.findAll({
-      where: { projectId: projectId, entityType: "sprint" },
+      where: { sprintId: sprintId, entityType: "sprint" },
       order: [["createdAt", "ASC"]],
     });
     res.send(data);
