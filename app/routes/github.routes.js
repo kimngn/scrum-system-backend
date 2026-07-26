@@ -44,5 +44,5 @@ module.exports = (app) => {
     }
   });
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };

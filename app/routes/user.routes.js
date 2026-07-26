@@ -24,5 +24,5 @@ module.exports = (app) => {
   // Delete all User
   router.delete("/users/", [authenticateRoute], User.deleteAll);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };

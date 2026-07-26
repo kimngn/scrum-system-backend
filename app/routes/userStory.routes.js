@@ -14,5 +14,5 @@ module.exports = (app) => {
   // Delete a story
   router.delete("/stories/:id", UserStory.delete);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };
