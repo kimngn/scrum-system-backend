@@ -1,6 +1,7 @@
 const db = require("../models");
 const UserStory = db.userStory;
 const ProjectColumn = db.projectColumn;
+const StoryAssignee = db.storyAssignee;
 
 // Find all stories for one project
 exports.findAllForProject = async (req, res) => {
@@ -9,14 +10,36 @@ exports.findAllForProject = async (req, res) => {
     const data = await UserStory.findAll({
       // Only get stories for this project.
       where: { projectId: projectId },
-      // Include the column info for each story.
-      include: [{ model: ProjectColumn, as: "column" }],
+      // Include the column info and assignees for each story.
+      include: [
+        { model: ProjectColumn, as: "column" },
+        {
+          model: StoryAssignee,
+          as: "assignee",
+          include: [{ model: db.user, as: "user", attributes: ["id", "firstName", "lastName", "email"] }],
+        },
+      ],
     });
     res.send(data);
   } catch (err) {
     res.status(500).send({
       message:
         err.message || "Some error occurred while retrieving the stories.",
+    });
+  }
+};
+
+//find all stories 
+exports.findAll = async (req, res) => {
+  try {
+    const count = await UserStory.count();
+    const stories = await UserStory.findAll();
+    res.send(stories);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).send({
+      message: err.message
     });
   }
 };

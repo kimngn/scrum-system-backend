@@ -22,10 +22,9 @@ db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
 db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
 db.repo = require("./repo.model.js")(sequelize, Sequelize);
 db.history = require("./history.model.js")(sequelize, Sequelize);
-db.projectMembership = require("./projectMembership.model.js")(
-  sequelize,
-  Sequelize,
-);
+db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequelize);
+db.storyAssignee = require("./storyAssignee.model.js")(sequelize, Sequelize);
+
 
 // foreign key for session
 db.user.hasMany(db.session, {
@@ -110,6 +109,7 @@ db.userStory.belongsTo(db.projectColumn, {
   foreignKey: { name: "columnId", allowNull: false },
   onDelete: "CASCADE",
 });
+
 // foreign keys for projectMembership
 db.project.hasMany(db.projectMembership, {
   as: "membership",
@@ -128,6 +128,29 @@ db.user.hasMany(db.projectMembership, {
   onDelete: "CASCADE",
 });
 db.projectMembership.belongsTo(db.user, {
+  as: "user",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+
+// foreign keys for storyAssignee
+db.userStory.hasMany(db.storyAssignee, {
+  as: "assignee",
+  foreignKey: { name: "userStoryId", allowNull: false },
+  onDelete: "CASCADE",
+});
+db.storyAssignee.belongsTo(db.userStory, {
+  as: "story",
+  foreignKey: { name: "userStoryId", allowNull: false },
+  onDelete: "CASCADE",
+});
+
+db.user.hasMany(db.storyAssignee, {
+  as: "assignee",
+  foreignKey: { allowNull: false },
+  onDelete: "CASCADE",
+});
+db.storyAssignee.belongsTo(db.user, {
   as: "user",
   foreignKey: { allowNull: false },
   onDelete: "CASCADE",
