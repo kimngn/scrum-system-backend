@@ -10,7 +10,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     newValue: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     oldValue: {
       type: Sequelize.STRING,
@@ -19,6 +19,10 @@ module.exports = (sequelize, Sequelize) => {
     entityType: {
       type: Sequelize.STRING,
       allowNull: false,
+    },
+    entityName: {
+      type: Sequelize.STRING,
+      allowNull: true,
     },
     entityId: {
       type: Sequelize.INTEGER,

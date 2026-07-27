@@ -11,8 +11,6 @@ exports.create = async (req, res) => {
     return res.status(400).send({ message: "Entity Id cannot be empty!" });
   } else if (req.body.entityType === undefined) {
     return res.status(400).send({ message: "Entity Type cannot be empty!" });
-  } else if (req.body.newValue === undefined) {
-    return res.status(400).send({ message: "New value cannot be empty!" });
   }
 
   const history = {
@@ -22,6 +20,7 @@ exports.create = async (req, res) => {
     newValue: req.body.newValue,
     oldValue: req.body.oldValue,
     entityType: req.body.entityType,
+    entityName: req.body.entityName,
     fieldName: req.body.fieldName,
   };
 
@@ -30,6 +29,29 @@ exports.create = async (req, res) => {
     res.send(data);
   } catch (err) {
     res.status(500).send({ message: err.message || "Error creating history." });
+  }
+};
+
+exports.findProjectActions = async (req, res) => {
+  try {
+    const data = await History.findAll({
+      where: { entityType: "project" },
+      order: [["createdAt", "ASC"]],
+      include: [
+        // able to do this because of foreign key + belongsTo
+        // makes things a lot easier when grabbing the user's name
+        {
+          model: db.user,
+          as: "user",
+          attributes: ["id", "firstName", "lastName"],
+        },
+      ],
+    });
+    res.send(data);
+  } catch (err) {
+    res
+      .status(500)
+      .send({ message: err.message || "Error retrieving project actions." });
   }
 };
 

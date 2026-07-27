@@ -4,6 +4,13 @@ module.exports = (app) => {
   var router = require("express").Router();
 
   router.post("/histories/", [authenticateRoute], history.create);
+
+  router.get(
+    "/histories/project/",
+    [authenticateRoute],
+    history.findProjectActions,
+  );
+
   router.get(
     "/histories/project/:projectId",
     [authenticateRoute],
