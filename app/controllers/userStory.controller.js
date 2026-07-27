@@ -56,6 +56,10 @@ exports.create = async (req, res) => {
   };
 
   try {
+    // Status matches the title of the column it's in.
+    const column = await ProjectColumn.findByPk(story.columnId);
+    story.status = column.title;
+
     const data = await UserStory.create(story);
     res.send(data);
   } catch (err) {
@@ -69,7 +73,13 @@ exports.update = async (req, res) => {
   const id = req.params.id;
 
   try {
-   // Update a story by the id.
+    // Status matches the title of the column it's in.
+    if (req.body.columnId !== undefined) {
+      const column = await ProjectColumn.findByPk(req.body.columnId);
+      req.body.status = column.title;
+    }
+
+    // Update a story by the id.
     await UserStory.update(req.body, {
       where: { id: id },
     });
