@@ -19,5 +19,5 @@ module.exports = (app) => {
 
   router.delete("/histories/", [authenticateRoute], history.deleteAll);
 
-  app.use("/recipeapi", router);
+  app.use("/scrumapi", router);
 };
