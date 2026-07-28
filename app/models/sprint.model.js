@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.DATE,
       allowNull: false,
     },
+    status: {
+      type: Sequelize.ENUM("planned", "active", "completed"),
+      defaultValue: "planned",
+    },
   });
   return Sprint;
 };
