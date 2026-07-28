@@ -35,7 +35,7 @@ exports.create = async (req, res) => {
 exports.findProjectActions = async (req, res) => {
   try {
     const data = await History.findAll({
-      where: { entityType: "project" },
+      where: { entityType: { [Op.in]: ["project", "repo"] } },
       order: [["createdAt", "ASC"]],
       include: [
         // able to do this because of foreign key + belongsTo
@@ -59,7 +59,10 @@ exports.findProjectActionsByProjectId = async (req, res) => {
   const projectId = req.params.projectId;
   try {
     const data = await History.findAll({
-      where: { entityId: projectId, entityType: "project" },
+      where: {
+        entityId: projectId,
+        entityType: { [Op.in]: ["project", "repo"] },
+      },
       order: [["createdAt", "ASC"]],
       include: [
         // able to do this because of foreign key + belongsTo
