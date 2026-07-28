@@ -24,6 +24,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    type:{
+      type: Sequelize.ENUM("Bug", "Blocker", "Issue", "User Story"),
+      allowNull: true,
+    },
   });
   return UserStory;
 };
