@@ -53,6 +53,7 @@ exports.create = async (req, res) => {
     storyPoint: req.body.storyPoint,
     projectId: req.body.projectId,
     columnId: req.body.columnId,
+    type: req.body.type,
   };
 
   try {
