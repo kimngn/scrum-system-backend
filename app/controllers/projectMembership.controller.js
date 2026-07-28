@@ -38,12 +38,21 @@ exports.findAllForProject = async (req, res) => {
 exports.delete = async (req, res) => {
   const id = req.params.id;
   try {
-    const number = await ProjectMembership.destroy({ where: { id: id } });
-    if (number == 1) {
-      res.send({ message: "Membership deleted successfully!" });
-    } else {
-      res.send({ message: `Cannot delete membership with id=${id}.` });
+    const membership = await ProjectMembership.findByPk(id);
+    if (!membership) {
+      return res.status(404).send({ message: `Cannot find membership with id=${id}.` });
     }
+
+    const { userId, projectId } = membership;
+
+    const teams = await db.team.findAll({ where: { projectId } });
+    const teamIds = teams.map((t) => t.id);
+    if (teamIds.length > 0) {
+      await db.teamMember.destroy({ where: { userId, teamId: teamIds } });
+    }
+
+    await membership.destroy();
+    res.send({ message: "Membership deleted successfully!" });
   } catch (err) {
     res.status(500).send({ message: err.message || "Error deleting membership." });
   }
