@@ -4,12 +4,13 @@ const Op = db.Sequelize.Op;
 const { getRepoData, getRepo } = require("../api/githubClient");
 
 exports.create = async (req, res) => {
-  // validate request's contents (make sure they are not empty)
-  if (req.body.name === undefined) {
+  if (!req.body.name) {
     return res.status(400).send({ message: "Name cannot be empty!" });
-  } else if (req.body.repoUrl === undefined) {
+  }
+  if (!req.body.repoUrl) {
     return res.status(400).send({ message: "RepoUrl cannot be empty!" });
-  } else if (req.body.projectId === undefined) {
+  }
+  if (!req.body.projectId) {
     return res.status(400).send({ message: "Project ID cannot be empty!" });
   }
 
@@ -17,16 +18,10 @@ exports.create = async (req, res) => {
     name: req.body.name,
     repoUrl: req.body.repoUrl,
     projectId: req.body.projectId,
-    token: req.body.token,
+    token: req.body.token, // this is the validated token from the frontend
   };
 
-  const url = req.body.repoUrl.replace("https://github.com/", "");
-  const [owner, repoName] = url.split("/"); // get the owner
-
-  // validate if GitHub URL exists through githubClient
   try {
-    await getRepoData(repo.token, owner, repoName);
-
     const data = await Repo.create(repo);
     res.send(data);
   } catch (err) {
@@ -76,26 +71,29 @@ exports.findOne = async (req, res) => {
 };
 exports.update = async (req, res) => {
   const id = req.params.id;
-  // validate that repoUrl and token aren't empty
+
+  // basic field validation
   if (!req.body.repoUrl) {
     return res.status(400).send({ message: "RepoUrl cannot be empty!" });
   }
   if (!req.body.token) {
     return res.status(400).send({ message: "Token cannot be empty!" });
   }
+
   const repoUrl = req.body.repoUrl;
   const token = req.body.token;
 
-  // extract owner and repoName again
+  // extract owner + repoName
   const url = repoUrl.replace("https://github.com/", "");
   const [owner, repoName] = url.split("/");
 
   try {
-    // validate the repoURL with the given token
+    // validate with new token from backend
     await getRepoData(token, owner, repoName);
 
-    // update repo in the database
+    // continue updating if everything goes well
     const number = await Repo.update(req.body, { where: { id } });
+
     if (number === 1) {
       res.send({ message: "Repo was updated successfully." });
     } else {
@@ -107,12 +105,15 @@ exports.update = async (req, res) => {
         message: "Bad credentials, please check your personal access token.",
       });
     }
+
     if (err.response?.status === 404) {
       return res.status(404).send({
         message: "This GitHub URL doesn't exist.",
       });
     }
-    res.status(500).send({ message: err.message || "Error updating repo." });
+    return res.status(500).send({
+      message: err.message || "Error updating repo.",
+    });
   }
 };
 
