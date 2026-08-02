@@ -1,7 +1,7 @@
 const db = require("../models");
 const Repo = db.repo;
 const Op = db.Sequelize.Op;
-const { validateRepo } = require("../api/githubClient");
+const { getRepoData, getRepo } = require("../api/githubClient");
 
 exports.create = async (req, res) => {
   // validate request's contents (make sure they are not empty)
@@ -17,11 +17,15 @@ exports.create = async (req, res) => {
     name: req.body.name,
     repoUrl: req.body.repoUrl,
     projectId: req.body.projectId,
+    token: req.body.token,
   };
+
+  const url = req.body.repoUrl.replace("https://github.com/", "");
+  const [owner, repoName] = url.split("/"); // get the owner
 
   // validate if GitHub URL exists through githubClient
   try {
-    await validateRepo(req.body.repoUrl);
+    await getRepoData(repo.token, owner, repoName);
 
     const data = await Repo.create(repo);
     res.send(data);
@@ -70,20 +74,65 @@ exports.findOne = async (req, res) => {
     res.status(500).send({ message: err.message || "Error retrieving repo." });
   }
 };
-
 exports.update = async (req, res) => {
   const id = req.params.id;
+  // validate that repoUrl and token aren't empty
+  if (!req.body.repoUrl) {
+    return res.status(400).send({ message: "RepoUrl cannot be empty!" });
+  }
+  if (!req.body.token) {
+    return res.status(400).send({ message: "Token cannot be empty!" });
+  }
+  const repoUrl = req.body.repoUrl;
+  const token = req.body.token;
+
+  // extract owner and repoName again
+  const url = repoUrl.replace("https://github.com/", "");
+  const [owner, repoName] = url.split("/");
 
   try {
-    await validateRepo(req.body.repoUrl);
-    const number = await Repo.update(req.body, { where: { id: id } });
-    if (number == 1) {
+    // validate the repoURL with the given token
+    await getRepoData(token, owner, repoName);
+
+    // update repo in the database
+    const number = await Repo.update(req.body, { where: { id } });
+    if (number === 1) {
       res.send({ message: "Repo was updated successfully." });
     } else {
       res.send({ message: `Cannot update repo with id=${id}.` });
     }
   } catch (err) {
+    if (err.response?.status === 401) {
+      return res.status(400).send({
+        message: "Bad credentials, please check your personal access token.",
+      });
+    }
+    if (err.response?.status === 404) {
+      return res.status(404).send({
+        message: "This GitHub URL doesn't exist.",
+      });
+    }
     res.status(500).send({ message: err.message || "Error updating repo." });
+  }
+};
+
+// get one repo associated with project using the projectId
+// only one is okay, use token for all GitHub API calls for all repos within that project
+exports.findOneForProject = async (req, res) => {
+  const projectId = req.params.projectId;
+  try {
+    const repo = await Repo.findOne({
+      where: { projectId: projectId },
+    });
+    if (!repo) {
+      return res.status(404).send({ message: "This repo does not exist." });
+    }
+    res.send(repo); // includes repo.token
+  } catch (err) {
+    res.status(500).send({
+      message:
+        err.message || "Error retrieving repo. Make sure your token is valid.",
+    });
   }
 };
 
