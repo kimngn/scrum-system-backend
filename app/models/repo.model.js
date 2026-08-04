@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
+    token: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
   return Repo;
 };
