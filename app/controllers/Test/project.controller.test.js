@@ -200,4 +200,56 @@ describe("project.controller", () => {
       });
     });
   });
+  //-------------------------
+  //business logic : Every project must have a name
+  //------------------------
+  it("should not create a project without a name", async () => {
+      const req = {
+        body: {
+          description: "Project Description",
+          status: "Active",
+          userId: 1,
+        },
+      };
+
+      const res = mockRes();
+
+      await projectController.create(req, res);
+
+      expect(Project.create).not.toHaveBeenCalled();
+
+      expect(res.status).toHaveBeenCalledWith(400);
+
+      expect(res.send).toHaveBeenCalledWith({
+        message: "Name cannot be empty!",
+      });
+   });
+   //-------------------
+   //If the user doesn't choose dates, the backend stores null.
+   //------------------
+   it("should default startDate and endDate to null", async () => {
+      const req = {
+        body: {
+          name: "Project A",
+          description: "Test",
+          status: "Active",
+          userId: 1,
+        },
+      };
+
+      const res = mockRes();
+
+      Project.create.mockResolvedValue({ id: 1 });
+
+      await projectController.create(req, res);
+
+      expect(Project.create).toHaveBeenCalledWith({
+        name: "Project A",
+        description: "Test",
+        status: "Active",
+        startDate: null,
+        endDate: null,
+        userId: 1,
+      });
+    });
 });
