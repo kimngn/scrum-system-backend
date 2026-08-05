@@ -22,11 +22,14 @@ db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
 db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
 db.repo = require("./repo.model.js")(sequelize, Sequelize);
 db.history = require("./history.model.js")(sequelize, Sequelize);
-db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequelize);
+db.projectMembership = require("./projectMembership.model.js")(
+  sequelize,
+  Sequelize,
+);
 db.storyAssignee = require("./storyAssignee.model.js")(sequelize, Sequelize);
 db.team = require("./team.model.js")(sequelize, Sequelize);
 db.teamMember = require("./teamMember.model.js")(sequelize, Sequelize);
-
+db.branch = require("./branch.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session, {

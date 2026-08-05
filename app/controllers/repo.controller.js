@@ -69,6 +69,7 @@ exports.findOne = async (req, res) => {
     res.status(500).send({ message: err.message || "Error retrieving repo." });
   }
 };
+
 exports.update = async (req, res) => {
   const id = req.params.id;
 
@@ -113,26 +114,6 @@ exports.update = async (req, res) => {
     }
     return res.status(500).send({
       message: err.message || "Error updating repo.",
-    });
-  }
-};
-
-// get one repo associated with project using the projectId
-// only one is okay, use token for all GitHub API calls for all repos within that project
-exports.findOneForProject = async (req, res) => {
-  const projectId = req.params.projectId;
-  try {
-    const repo = await Repo.findOne({
-      where: { projectId: projectId },
-    });
-    if (!repo) {
-      return res.status(404).send({ message: "This repo does not exist." });
-    }
-    res.send(repo); // includes repo.token
-  } catch (err) {
-    res.status(500).send({
-      message:
-        err.message || "Error retrieving repo. Make sure your token is valid.",
     });
   }
 };
