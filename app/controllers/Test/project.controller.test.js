@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // -----------------------------------------------------------------------
 const db = require("../../models");
 const Project = db.project;
+const ProjectMembership = db.projectMembership;
 
 // -----------------------------------------------------------------------
 // IMPORTANT: spies must be created OUTSIDE beforeEach.
@@ -21,6 +22,10 @@ const destroySpy = vi.spyOn(Project, "destroy");
 
 vi.spyOn(Sprint, "findAll");
 Sprint.findAll.mockResolvedValue([]);
+
+// project.controller.js adds the creator as a project lead
+vi.spyOn(ProjectMembership, "create");
+ProjectMembership.create.mockResolvedValue({});
 
 // Import controller AFTER spies are set
 const { default: projectController } = await import("../project.controller");

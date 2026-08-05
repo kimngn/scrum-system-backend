@@ -57,6 +57,13 @@ const run = async () => {
       userId: user.id,
     });
 
+    // Adds the project's creator as a lead.
+    await db.projectMembership.create({
+      userId: user.id,
+      projectId: project.id,
+      role: "lead",
+    });
+
     const sprint = await db.sprint.create({
       name: "Sprint 1",
       startDate: new Date(),

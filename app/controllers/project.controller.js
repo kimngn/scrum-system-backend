@@ -26,6 +26,14 @@ exports.create = async (req, res) => {
 
   try {
     const data = await Project.create(project);
+
+    // Adds the project's creator as a lead.
+    await ProjectMembership.create({
+      userId: data.userId,
+      projectId: data.id,
+      role: "lead",
+    });
+
     res.send(data);
   } catch (err) {
     res.status(500).send({ message: err.message || "Error creating project." });
