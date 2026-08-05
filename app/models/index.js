@@ -24,8 +24,6 @@ db.repo = require("./repo.model.js")(sequelize, Sequelize);
 db.history = require("./history.model.js")(sequelize, Sequelize);
 db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequelize);
 db.storyAssignee = require("./storyAssignee.model.js")(sequelize, Sequelize);
-db.team = require("./team.model.js")(sequelize, Sequelize);
-db.teamMember = require("./teamMember.model.js")(sequelize, Sequelize);
 
 
 // foreign key for session
@@ -156,52 +154,6 @@ db.storyAssignee.belongsTo(db.user, {
   as: "user",
   foreignKey: { allowNull: false },
   onDelete: "CASCADE",
-});
-// foreign keys for team
-db.project.hasMany(db.team, {
-  as: "team",
-  foreignKey: { allowNull: false },
-  onDelete: "CASCADE",
-});
-db.team.belongsTo(db.project, {
-  as: "project",
-  foreignKey: { allowNull: false },
-  onDelete: "CASCADE",
-});
-
-// foreign keys for teamMember
-db.team.hasMany(db.teamMember, {
-  as: "member",
-  foreignKey: { name: "teamId", allowNull: false },
-  onDelete: "CASCADE",
-});
-db.teamMember.belongsTo(db.team, {
-  as: "team",
-  foreignKey: { name: "teamId", allowNull: false },
-  onDelete: "CASCADE",
-});
-
-db.user.hasMany(db.teamMember, {
-  as: "teamMember",
-  foreignKey: { allowNull: false },
-  onDelete: "CASCADE",
-});
-db.teamMember.belongsTo(db.user, {
-  as: "user",
-  foreignKey: { allowNull: false },
-  onDelete: "CASCADE",
-});
-
-// team FK on userStory
-db.team.hasMany(db.userStory, {
-  as: "story",
-  foreignKey: { name: "teamId", allowNull: true },
-  onDelete: "SET NULL",
-});
-db.userStory.belongsTo(db.team, {
-  as: "team",
-  foreignKey: { name: "teamId", allowNull: true },
-  onDelete: "SET NULL",
 });
 
 module.exports = db;
