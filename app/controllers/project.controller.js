@@ -2,7 +2,18 @@ const db = require("../models");
 const Project = db.project;
 const Sprint = db.sprint;
 const ProjectMembership = db.projectMembership;
+const ProjectColumn = db.projectColumn;
 const Op = db.Sequelize.Op;
+
+// Default columns for new projects.
+const defaultColumnTitles = [
+  "Backlog",
+  "To Do",
+  "In Progress",
+  "Ready for Test",
+  "Testing",
+  "Done",
+];
 
 exports.create = async (req, res) => {
   if (req.body.name === undefined) {
@@ -33,6 +44,15 @@ exports.create = async (req, res) => {
       projectId: data.id,
       role: "lead",
     });
+
+    // Adds the default storyboard columns.
+    for (let i = 0; i < defaultColumnTitles.length; i++) {
+      await ProjectColumn.create({
+        title: defaultColumnTitles[i],
+        displayOrder: i + 1,
+        projectId: data.id,
+      });
+    }
 
     res.send(data);
   } catch (err) {
