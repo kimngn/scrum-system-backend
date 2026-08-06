@@ -16,33 +16,22 @@ function useGithubClient(token) {
 }
 
 // no longer using .env token
-async function getRepoData(token, owner, repo) {
-  const api = useGithubClient(token); // get token from DB
-  const response = await api.get(`/repos/${owner}/${repo}`);
+async function getRepoData(token, owner, repoName) {
+  const api = useGithubClient(token); // prepare the API to make calls to Github
+  const response = await api.get(`/repos/${owner}/${repoName}`);
   return response.data;
 }
 
-const getRepo = async () => {
-  try {
-    const response = await api.get("/repos/kimngn/scrum-system-backend");
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    throw error;
-  }
-};
+async function getBranches(token, owner, repoName) {
+  const api = useGithubClient(token); // prepare the API to make calls to Github
+  const response = await api.get(`/repos/${owner}/${repoName}/branches`);
 
-const getBranches = async () => {
-  try {
-    const response = await api.get(
-      "/repos/kimngn/scrum-system-backend/branches",
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    throw error;
-  }
-};
+  return response.data
+    .filter((b) => !["main", "master", "dev"].includes(b.name)) // remove dev, main, master
+    .map((branch) => ({
+      name: branch.name, // just want the name, not all the data it returns
+    }));
+}
 
 const getPullRequests = async () => {
   try {
@@ -55,7 +44,6 @@ const getPullRequests = async () => {
 };
 
 module.exports = {
-  getRepo,
   getBranches,
   getPullRequests,
   getRepoData,

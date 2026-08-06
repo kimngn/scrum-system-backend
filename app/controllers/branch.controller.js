@@ -52,15 +52,15 @@ exports.update = async (req, res) => {
 };
 
 exports.findBranchByStoryId = async (req, res) => {
-  const storyId = req.params.userStoryId;
+  const userStoryId = req.params.userStoryId;
   try {
-    const data = await Branch.findAll({
+    const data = await Branch.findOne({
       where: {
-        storyId: storyId,
+        userStoryId: userStoryId,
       },
       order: [["createdAt", "ASC"]],
     });
-    res.send(data);
+    res.json(data || {}); // getting issues, adding {}
   } catch (err) {
     res
       .status(500)

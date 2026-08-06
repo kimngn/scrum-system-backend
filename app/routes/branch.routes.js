@@ -8,7 +8,7 @@ module.exports = (app) => {
   router.get("/branches/", [authenticateRoute], branch.findAllBranches);
 
   router.get(
-    "/branches/story/:storyId",
+    "/branches/story/:userStoryId",
     [authenticateRoute],
     branch.findBranchByStoryId,
   );

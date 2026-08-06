@@ -7,7 +7,6 @@ var router = require("express").Router();
 
 const {
   getRepoData,
-  getRepo,
   getBranches,
   getPullRequests,
 } = require("../api/githubClient");
@@ -46,69 +45,31 @@ module.exports = (app) => {
     }
   });
 
-  router.get("/api/githubClient/repo", async (req, res) => {
-    try {
-      const response = await getRepo();
-      res.json(response);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  // grab branches from Github
+  router.post("/api/github/branches", async (req, res) => {
+    const repoUrl = req.body.repoUrl;
+    const token = req.body.token;
 
-  router.get("/github/:projectId", async (req, res) => {
-    const projectId = req.params.projectId;
-
-    const repoResponse = await axios.get(
-      `http://localhost:3200/scrumapi/repos/project/${projectId}`,
-      {
-        headers: {
-          Authorization: req.headers.authorization, // forward user's token
-        },
-      },
-    );
-
-    const repos = repoResponse.data;
-
-    if (!repos.length) {
-      return res
-        .status(404)
-        .json({ message: "No repos found for this project." });
-    }
-
-    const repo = repos[0];
-
-    if (!repo || !repo.token) {
+    if (!token) {
+      // make sure the project actually has a token
       return res.status(400).json({
-        message:
-          "No GitHub token found! Please add a valid Github Personal Access Token to your project.",
+        message: "No personal access token associated with this project.",
       });
     }
-
-    const token = repo.token;
-
-    // extract the owner
-    const url = repo.repoUrl.replace("https://github.com/", "");
+    // extract owner and repo
+    const url = repoUrl.replace("https://github.com/", "");
     const [owner, repoName] = url.split("/");
 
     try {
-      const data = await githubClient.getRepoData(token, owner, repoName);
-      res.json(data);
+      const response = await githubClient.getBranches(token, owner, repoName);
+      console.log("Branches:" + response);
+      return res.json(response);
     } catch (err) {
-      if (err.response?.status === 401) {
-        return res.status(401).json({
-          message:
-            "Bad credentials, please check your project's personal access token.",
+      if (err.response?.status === 401 || 404) {
+        return res.status(400).json({
+          message: "Failed to retrieve branches.",
         });
       }
-    }
-  });
-
-  router.get("/api/githubClient/branches", async (req, res) => {
-    try {
-      const response = await getBranches();
-      res.json(response);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
     }
   });
 
