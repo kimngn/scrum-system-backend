@@ -2,7 +2,7 @@ module.exports = (sequelize, Sequelize) => {
   const Branch = sequelize.define("branch", {
     title: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     repoId: {
       type: Sequelize.STRING,

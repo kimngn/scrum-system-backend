@@ -81,13 +81,16 @@ exports.findAllBranches = async (req, res) => {
   }
 };
 
-exports.deleteAll = async (req, res) => {
+exports.delete = async (req, res) => {
+  const id = req.params.id;
   try {
-    const number = await Branch.destroy({ where: {}, truncate: false });
-    res.send({ message: `${number} branches were deleted successfully!` });
+    const number = await Branch.destroy({ where: { id: id } });
+    if (number == 1) {
+      res.send({ message: "Branch was deleted successfully!" });
+    } else {
+      res.send({ message: `Cannot delete branch with id=${id}.` });
+    }
   } catch (err) {
-    res
-      .status(500)
-      .send({ message: err.message || "Error deleting all branches." });
+    res.status(500).send({ message: err.message || "Error deleting branch." });
   }
 };

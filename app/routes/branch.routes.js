@@ -5,6 +5,8 @@ module.exports = (app) => {
 
   router.post("/branches/", [authenticateRoute], branch.create);
 
+  router.put("/branches/:id", [authenticateRoute], branch.update);
+
   router.get("/branches/", [authenticateRoute], branch.findAllBranches);
 
   router.get(
@@ -13,6 +15,6 @@ module.exports = (app) => {
     branch.findBranchByStoryId,
   );
 
-  router.delete("/branches/", [authenticateRoute], branch.deleteAll);
+  router.delete("/branches/:id", [authenticateRoute], branch.delete);
   app.use("/scrumapi", router);
 };
