@@ -57,7 +57,7 @@ exports.findAllForProject = async (req, res) => {
 exports.findOne = async (req, res) => {
   const id = req.params.id;
   try {
-    const data = await Repo.findAll({
+    const data = await Repo.findOne({
       where: { id: id },
     });
     if (data) {

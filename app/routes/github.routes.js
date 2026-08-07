@@ -46,6 +46,7 @@ module.exports = (app) => {
   });
 
   // grab branches from Github
+
   router.post("/api/github/branches", async (req, res) => {
     const repoUrl = req.body.repoUrl;
     const token = req.body.token;
@@ -73,12 +74,35 @@ module.exports = (app) => {
     }
   });
 
-  router.get("/api/githubClient/pulls", async (req, res) => {
+  // grab pull requests from Github
+  router.post("/api/github/pulls", async (req, res) => {
+    console.log("BODY:", req.body);
+    const repoUrl = req.body.repoUrl;
+    const token = req.body.token;
+    const branchName = req.body.branchName;
+
+    if (!token) {
+      // make sure the project actually has a token
+      return res.status(400).json({
+        message: "No personal access token associated with this project.",
+      });
+    }
+    // extract owner and repo
+    const url = repoUrl.replace("https://github.com/", "");
+    const [owner, repoName] = url.split("/");
+
     try {
-      const response = await getPullRequests();
-      res.json(response);
+      const response = await githubClient.getPullRequests(
+        token,
+        owner,
+        repoName,
+        branchName,
+      );
+      return res.json(response);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      return res.status(400).json({
+        message: "Failed to retrieve PRs.",
+      });
     }
   });
 

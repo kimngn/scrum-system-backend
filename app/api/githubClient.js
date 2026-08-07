@@ -26,17 +26,48 @@ async function getBranches(token, owner, repoName) {
   const api = useGithubClient(token); // prepare the API to make calls to Github
   const response = await api.get(`/repos/${owner}/${repoName}/branches`);
 
-  return response.data
-    .filter((b) => !["main", "master", "dev"].includes(b.name)) // remove dev, main, master
-    .map((branch) => ({
-      name: branch.name, // just want the name, not all the data it returns
-    }));
+  return (
+    response.data
+
+      // asked for help from AI on this one
+      .filter((b) => !["main", "master", "dev"].includes(b.name)) // remove dev, main, master
+      .map((branch) => ({
+        name: branch.name, // just want the name, not all the data it returns
+      }))
+  );
 }
 
-const getPullRequests = async () => {
+const getPullRequests = async (token, owner, repoName, branchName) => {
+  console.log("OWNER:" + owner);
+  console.log("branchName:" + branchName);
+  const api = useGithubClient(token); // prepare the API to make calls to Github
   try {
-    const response = await api.get("/repos/kimngn/scrum-system-backend/pulls");
-    return response.data;
+    const response = await api.get(
+      `/repos/${owner}/${repoName}/pulls?state=all&per_page=100`, // fetch all PRs (can't get branchName to match exact branch format)
+      // funny bug where first 30 PRs are fetched because of 30 PRs per page
+    );
+
+    console.log("All PRs:");
+
+    for (const pr of response.data) {
+      console.log("PR head.ref:", pr.head.ref);
+      console.log("PR branchname:", branchName);
+    }
+
+    const filtered = response.data.filter((pr) => pr.head.ref === branchName); // filter fetched PRs by branchName
+
+    return filtered.map((pr) => ({
+      // map PR to an object (remove data that won't be used)
+      author: pr.user.login,
+      number: pr.number,
+      title: pr.title,
+      state: pr.state,
+      createdAt: pr.created_at,
+      mergedAt: pr.merged_at,
+      mergedBy: pr.merged_by?.login ?? null,
+      assignee: pr.assignee?.login ?? null,
+      url: pr.html_url,
+    }));
   } catch (error) {
     console.error(error.response?.data || error.message);
     throw error;
