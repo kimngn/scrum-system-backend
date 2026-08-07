@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const db = require("../../models");
 const Project = db.project;
 const ProjectMembership = db.projectMembership;
+const ProjectColumn = db.projectColumn;
 
 // -----------------------------------------------------------------------
 // IMPORTANT: spies must be created OUTSIDE beforeEach.
@@ -26,6 +27,10 @@ Sprint.findAll.mockResolvedValue([]);
 // project.controller.js adds the creator as a project lead
 vi.spyOn(ProjectMembership, "create");
 ProjectMembership.create.mockResolvedValue({});
+
+// project.controller.js seeds default storyboard columns mock it so tests don't hit real database.
+vi.spyOn(ProjectColumn, "create");
+ProjectColumn.create.mockResolvedValue({});
 
 // Import controller AFTER spies are set
 const { default: projectController } = await import("../project.controller");

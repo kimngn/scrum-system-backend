@@ -2,6 +2,7 @@ const db = require("../models");
 const UserStory = db.userStory;
 const ProjectColumn = db.projectColumn;
 const StoryAssignee = db.storyAssignee;
+const Sprint = db.sprint;
 
 // Find all stories for one project
 exports.findAllForProject = async (req, res) => {
@@ -10,9 +11,10 @@ exports.findAllForProject = async (req, res) => {
     const data = await UserStory.findAll({
       // Only get stories for this project.
       where: { projectId: projectId },
-      // Include the column info and assignees for each story.
+      // Include the column info, sprint, and assignees for each story.
       include: [
         { model: ProjectColumn, as: "column" },
+        { model: Sprint, as: "sprint" },
         {
           model: StoryAssignee,
           as: "assignee",
@@ -53,6 +55,7 @@ exports.create = async (req, res) => {
     storyPoint: req.body.storyPoint,
     projectId: req.body.projectId,
     columnId: req.body.columnId,
+    sprintId: req.body.sprintId || null,
     type: req.body.type,
   };
 
