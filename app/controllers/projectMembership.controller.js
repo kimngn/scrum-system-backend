@@ -43,14 +43,6 @@ exports.delete = async (req, res) => {
       return res.status(404).send({ message: `Cannot find membership with id=${id}.` });
     }
 
-    const { userId, projectId } = membership;
-
-    const teams = await db.team.findAll({ where: { projectId } });
-    const teamIds = teams.map((t) => t.id);
-    if (teamIds.length > 0) {
-      await db.teamMember.destroy({ where: { userId, teamId: teamIds } });
-    }
-
     await membership.destroy();
     res.send({ message: "Membership deleted successfully!" });
   } catch (err) {
