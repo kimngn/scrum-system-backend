@@ -75,6 +75,18 @@ db.sprint.belongsTo(db.project, {
   onDelete: "CASCADE",
 });
 
+// foreign key for sprint on userStory
+db.sprint.hasMany(db.userStory, {
+  as: "story",
+  foreignKey: { name: "sprintId", allowNull: true },
+  onDelete: "SET NULL",
+});
+db.userStory.belongsTo(db.sprint, {
+  as: "sprint",
+  foreignKey: { name: "sprintId", allowNull: true },
+  onDelete: "SET NULL",
+});
+
 // foreign key for projectColumn
 db.project.hasMany(db.projectColumn, {
   as: "column",
