@@ -8,6 +8,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
+    type: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
   return ProjectColumn;
 };
