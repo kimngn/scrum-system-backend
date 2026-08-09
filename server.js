@@ -53,6 +53,7 @@ require("./app/routes/projectMembership.routes.js")(app);
 require("./app/routes/team.routes.js")(app);
 require("./app/routes/storyAssignee.routes.js")(app);
 require("./app/routes/projectColumn.routes.js")(app);
+require("./app/routes/chat.routes.js")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 3200;
 startServer();
