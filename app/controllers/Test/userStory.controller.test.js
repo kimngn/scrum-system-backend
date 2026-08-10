@@ -14,6 +14,7 @@ const db = require("../../models");
 const UserStory = db.userStory;
 const ProjectColumn = db.projectColumn;
 const StoryAssignee = db.storyAssignee;
+const Sprint = db.sprint;
 const User = db.user;
 
 // -----------------------------------------------------------------------
@@ -127,6 +128,10 @@ describe("userStory.controller", () => {
           {
             model: ProjectColumn,
             as: "column",
+          },
+          {
+            model: Sprint,
+            as: "sprint",
           },
           {
             model: StoryAssignee,
@@ -313,6 +318,7 @@ describe("userStory.controller", () => {
         storyPoint: 5,
         projectId: 3,
         columnId: 1,
+        sprintId: null,
         type: "Issue",
         status: "Backlog",
       });
@@ -663,6 +669,7 @@ describe("userStory.controller", () => {
             storyPoint: 5,
             projectId: 3,
             columnId: 2,
+            sprintId: null,
             type: "User Story",
             status: "To Do",
         });

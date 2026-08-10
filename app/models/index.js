@@ -22,9 +22,12 @@ db.projectColumn = require("./projectColumn.model.js")(sequelize, Sequelize);
 db.userStory = require("./userStory.model.js")(sequelize, Sequelize);
 db.repo = require("./repo.model.js")(sequelize, Sequelize);
 db.history = require("./history.model.js")(sequelize, Sequelize);
-db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequelize);
+db.projectMembership = require("./projectMembership.model.js")(
+  sequelize,
+  Sequelize,
+);
 db.storyAssignee = require("./storyAssignee.model.js")(sequelize, Sequelize);
-
+db.branch = require("./branch.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session, {
@@ -73,6 +76,18 @@ db.sprint.belongsTo(db.project, {
   as: "project",
   foreignKey: { allowNull: false },
   onDelete: "CASCADE",
+});
+
+// foreign key for sprint on userStory
+db.sprint.hasMany(db.userStory, {
+  as: "story",
+  foreignKey: { name: "sprintId", allowNull: true },
+  onDelete: "SET NULL",
+});
+db.userStory.belongsTo(db.sprint, {
+  as: "sprint",
+  foreignKey: { name: "sprintId", allowNull: true },
+  onDelete: "SET NULL",
 });
 
 // foreign key for projectColumn
