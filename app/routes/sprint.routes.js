@@ -9,6 +9,7 @@ module.exports = (app) => {
   router.get("/sprints/:id", [authenticateRoute], sprint.findOne);
   router.put("/sprints/:id", [authenticateRoute], sprint.update);
   router.delete("/sprints/:id", [authenticateRoute], sprint.delete);
+  router.post("/sprints/:id/duplicate", [authenticateRoute], sprint.duplicate);
   router.delete("/sprints/", [authenticateRoute], sprint.deleteAll);
 
   app.use("/scrumapi", router);

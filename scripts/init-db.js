@@ -24,7 +24,9 @@ if (help) {
 const run = async () => {
   try {
     console.log(`Syncing database${wipe ? " (force=true)" : ""}...`);
+    if (wipe) await db.sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
     await db.sequelize.sync(wipe ? { force: true } : {});
+    if (wipe) await db.sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
     console.log("Database synced.");
 
     const salt = await getSalt();
