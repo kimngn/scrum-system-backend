@@ -1,5 +1,6 @@
 const db = require("../models");
 const Sprint = db.sprint;
+const UserStory = db.userStory;
 const Op = db.Sequelize.Op;
 
 function findSprintIndex(sprints, id) {
@@ -233,6 +234,98 @@ exports.delete = async (req, res) => {
     }
   } catch (err) {
     res.status(500).send({ message: err.message || "Error deleting sprint." });
+  }
+};
+
+exports.duplicate = async (req, res) => {
+  const sourceId = req.params.id;
+  try {
+    const source = await Sprint.findByPk(sourceId);
+    if (!source) {
+      return res.status(404).send({ message: `Cannot find sprint with id=${sourceId}.` });
+    }
+
+    if (req.body.name === undefined) {
+      return res.status(400).send({ message: "Name cannot be empty!" });
+    } else if (req.body.startDate === undefined) {
+      return res.status(400).send({ message: "Start date cannot be empty!" });
+    } else if (req.body.endDate === undefined) {
+      return res.status(400).send({ message: "End date cannot be empty!" });
+    } else if (req.body.projectId === undefined) {
+      return res.status(400).send({ message: "Project Id cannot be empty!" });
+    }
+
+    const sourceEnd = new Date(source.endDate);
+    sourceEnd.setHours(0, 0, 0, 0);
+    const newStart = new Date(req.body.startDate);
+    newStart.setHours(0, 0, 0, 0);
+
+    if (newStart <= sourceEnd) {
+      throw new Error(
+        "The duplicated sprint must start after the source sprint ends."
+      );
+    }
+
+    const result = await db.sequelize.transaction(async (t) => {
+      const nameExists = await Sprint.findOne({
+        where: {
+          projectId: req.body.projectId,
+          name: req.body.name,
+        },
+        transaction: t,
+      });
+      if (nameExists) {
+        throw new Error("A sprint with this name already exists in this project.");
+      }
+
+      const overlapping = await Sprint.findOne({
+        where: {
+          projectId: req.body.projectId,
+          startDate: { [Op.lte]: req.body.endDate },
+          endDate: { [Op.gte]: req.body.startDate },
+        },
+        transaction: t,
+      });
+      if (overlapping) {
+        throw new Error("Sprint dates overlap with an existing sprint.");
+      }
+
+      const newSprint = await Sprint.create(
+        {
+          name: req.body.name,
+          startDate: req.body.startDate,
+          endDate: req.body.endDate,
+          status: "planned",
+          projectId: req.body.projectId,
+        },
+        { transaction: t }
+      );
+
+      const [carriedOver] = await UserStory.update(
+        { sprintId: newSprint.id },
+        {
+          where: {
+            sprintId: sourceId,
+            status: { [Op.ne]: "Done" },
+          },
+          transaction: t,
+        }
+      );
+
+      return { newSprint, carriedOver };
+    });
+
+    res.send({
+      ...result.newSprint.toJSON(),
+      carriedOver: result.carriedOver,
+    });
+  } catch (err) {
+    if (err.message === "A sprint with this name already exists in this project." ||
+        err.message === "Sprint dates overlap with an existing sprint." ||
+        err.message === "The duplicated sprint must start after the source sprint ends.") {
+      return res.status(409).send({ message: err.message });
+    }
+    res.status(500).send({ message: err.message || "Error duplicating sprint." });
   }
 };
 
