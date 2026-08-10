@@ -59,5 +59,4 @@ module.exports = {
   getBranches,
   getPullRequests,
   getRepoData,
-  postPullRequest,
 };
