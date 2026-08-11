@@ -25,12 +25,15 @@ exports.findAllForProject = async (req, res) => {
 // Create a new column.
 exports.create = async (req, res) => {
   if (!canManageColumns(req.body.role)) {
-    return res.status(401).send({ message: "Only team leads and admins can create columns." });
+    return res
+      .status(401)
+      .send({ message: "Only team leads and admins can create columns." });
   }
 
   const column = {
     title: req.body.title,
     displayOrder: req.body.displayOrder,
+    type: req.body.type,
     projectId: req.body.projectId,
   };
 
@@ -47,7 +50,9 @@ exports.create = async (req, res) => {
 // Update a column's title/order.
 exports.update = async (req, res) => {
   if (!canManageColumns(req.body.role)) {
-    return res.status(401).send({ message: "Only team leads and admins can update columns." });
+    return res
+      .status(401)
+      .send({ message: "Only team leads and admins can update columns." });
   }
 
   const id = req.params.id;
@@ -63,10 +68,12 @@ exports.update = async (req, res) => {
   }
 };
 
-// Delete a column. 
+// Delete a column.
 exports.delete = async (req, res) => {
   if (!canManageColumns(req.body.role)) {
-    return res.status(401).send({ message: "Only team leads and admins can delete columns." });
+    return res
+      .status(401)
+      .send({ message: "Only team leads and admins can delete columns." });
   }
 
   const id = req.params.id;

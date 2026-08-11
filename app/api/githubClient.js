@@ -37,6 +37,24 @@ async function getBranches(token, owner, repoName) {
   );
 }
 
+async function getShaAndDefaultBranch(token, owner, repoName) {
+  const api = useGithubClient(token);
+
+  // get repo's default branch
+  const repo = await api.get(`/repos/${owner}/${repoName}`);
+  const defaultBranch = repo.data.default_branch;
+
+  // get sha using default_branch
+  const branch = await api.get(
+    `/repos/${owner}/${repoName}/branches/${defaultBranch}`,
+  );
+
+  return {
+    sha: branch.data.commit.sha,
+    ref: `refs/heads/${defaultBranch}`, // need ref for updates and deletions
+  };
+}
+
 const getPullRequests = async (token, owner, repoName, branchName) => {
   console.log("OWNER:" + owner);
   console.log("branchName:" + branchName);
@@ -74,8 +92,35 @@ const getPullRequests = async (token, owner, repoName, branchName) => {
   }
 };
 
+const postPullRequest = async (story, pr) => {
+  // need title, body, head, base
+
+  console.log("Story Title:" + story.title);
+  console.log("Story Description:" + story.body);
+  const api = useGithubClient(token); // prepare the API to make calls to Github
+};
+
+const postBranch = async (token, owner, repoName, newBranchName, sha) => {
+  const api = useGithubClient(token); // prepare the API to make calls to Github
+  try {
+    // remember, two parameters because POST
+    // post new branch to Github with sha and ref values
+    const response = await api.post(`/repos/${owner}/${repoName}/git/refs`, {
+      ref: `refs/heads/${newBranchName}`,
+      sha,
+    });
+    return response.data;
+    console.log("Branch created in Github");
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
 module.exports = {
+  getShaAndDefaultBranch,
   getBranches,
   getPullRequests,
   getRepoData,
+  postBranch,
 };

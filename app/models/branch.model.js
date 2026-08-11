@@ -16,6 +16,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
+    ref: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    sha: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
   return Branch;
 };
