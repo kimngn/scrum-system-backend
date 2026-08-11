@@ -8,8 +8,9 @@ var router = require("express").Router();
 const {
   getRepoData,
   getBranches,
-  getShaFromMain,
+  getShaAndDefaultBranch,
   getPullRequests,
+  postBranch,
 } = require("../api/githubClient");
 
 module.exports = (app) => {
@@ -90,19 +91,20 @@ module.exports = (app) => {
     const [owner, repoName] = url.split("/");
 
     try {
-      const response = await githubClient.getShaFromMain(
+      const response = await githubClient.getShaAndDefaultBranch(
         token,
         owner,
         repoName,
       );
-      console.log("Main branch's sha:", response.sha);
+      console.log("Sha:", response.sha);
+      console.log("Ref:", response.ref);
 
       return res.json(response);
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 404) {
         return res.status(400).json({
           message:
-            "Failed to retrieve main branch's sha." + err.response.data.message,
+            "Failed to retrieve sha and ref." + err.response.data.message,
         });
       }
     }
@@ -136,6 +138,40 @@ module.exports = (app) => {
     } catch (err) {
       return res.status(400).json({
         message: "Failed to retrieve PRs.",
+      });
+    }
+  });
+
+  // post new branch to Github
+  router.post("/api/github/newBranch", async (req, res) => {
+    console.log("BODY:", req.body);
+    const repoUrl = req.body.repoUrl;
+    const token = req.body.token;
+    const newBranchName = req.body.newBranchName;
+    const sha = req.body.sha;
+
+    if (!token) {
+      // make sure the project actually has a token
+      return res.status(400).json({
+        message: "No personal access token associated with this project.",
+      });
+    }
+    // extract owner and repo
+    const url = repoUrl.replace("https://github.com/", "");
+    const [owner, repoName] = url.split("/");
+
+    try {
+      const response = await githubClient.postBranch(
+        token,
+        owner,
+        repoName,
+        newBranchName,
+        sha,
+      );
+      return res.json(response);
+    } catch (err) {
+      return res.status(400).json({
+        message: "Failed to create a new branch in Github.",
       });
     }
   });
