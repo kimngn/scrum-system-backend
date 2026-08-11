@@ -55,6 +55,7 @@ require("./app/routes/branch.routes.js")(app);
 require("./app/routes/projectColumn.routes.js")(app);
 require("./app/routes/chat.routes.js")(app);
 require("./app/routes/retrospective.routes.js")(app);
+require("./app/routes/acceptanceCriteria.routes.js")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 3200;
 startServer();
