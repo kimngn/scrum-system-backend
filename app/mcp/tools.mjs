@@ -43,6 +43,9 @@ function fail(error) {
 
 async function requireMembership(userId, projectId) {
   if (!userId) return fail("Authentication required.");
+  // Admins can access any project without membership
+  const user = await User.findByPk(userId, { attributes: ["role"] });
+  if (user && user.role === "admin") return null; // null = access granted
   const membership = await ProjectMembership.findOne({ where: { userId, projectId } });
   if (!membership) return fail("Access denied to this project.");
   return null; // null = access granted

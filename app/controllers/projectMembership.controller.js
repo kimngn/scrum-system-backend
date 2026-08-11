@@ -56,3 +56,18 @@ exports.delete = async (req, res) => {
     res.status(500).send({ message: err.message || "Error deleting membership." });
   }
 };
+
+exports.update = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const membership = await ProjectMembership.findByPk(id);
+    if (!membership) {
+      return res.status(404).send({ message: `Cannot find membership with id=${id}.` });
+    }
+
+    await membership.update({ role: req.body.role });
+    res.send({ message: "Membership updated successfully!" });
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error updating membership." });
+  }
+};

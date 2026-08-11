@@ -5,6 +5,7 @@ module.exports = (app) => {
 
   router.post("/projectmemberships/", [authenticateRoute], projectMembership.create);
   router.get("/projectmemberships/project/:projectId", [authenticateRoute], projectMembership.findAllForProject);
+  router.put("/projectmemberships/:id", [authenticateRoute], projectMembership.update);
   router.delete("/projectmemberships/:id", [authenticateRoute], projectMembership.delete);
 
   app.use("/scrumapi", router);
