@@ -11,7 +11,6 @@ const User = db.user;
  */
 authenticate = async (req, res, require = true) => {
   let auth = req.get("authorization");
-  console.log(auth);
   if (auth != null) {
     if (
       auth.startsWith("Basic ") &&
@@ -88,14 +87,18 @@ authenticate = async (req, res, require = true) => {
 
 authenticateRoute = async (req, res, next) => {
   let auth = req.get("authorization");
-  console.log(auth);
   if (auth != null) {
     if (
       auth.startsWith("Bearer ") &&
       (typeof require !== "string" || require === "token")
     ) {
       let token = auth.slice(7);
-      let sessionId = await decrypt(token);
+      let sessionId;
+      try {
+        sessionId = await decrypt(token);
+      } catch {
+        return res.status(401).send({ message: "Unauthorized! Invalid Token" });
+      }
       let session;
       try {
         const data = await Session.findAll({ where: { id: sessionId } });
@@ -104,9 +107,8 @@ authenticateRoute = async (req, res, next) => {
         console.log(error);
       }
       if (session != null) {
-        console.log(session >= Date.now());
-        console.log(Date.now());
         if (session.expirationDate >= Date.now()) {
+          req.userId = session.userId;
           next();
           return;
         } else {

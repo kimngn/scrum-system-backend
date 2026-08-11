@@ -43,19 +43,24 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
   let auth = req.get("authorization");
-  console.log(auth);
   if (
     auth != null &&
     auth.startsWith("Bearer ") &&
     (typeof require !== "string" || require === "token")
   ) {
     let token = auth.slice(7);
-    let sessionId = await decrypt(token);
-    if (sessionId == null) return;
+    let sessionId;
+    try {
+      sessionId = await decrypt(token);
+    } catch {
+      return res.status(200).send();
+    }
+    if (sessionId == null) return res.status(200).send();
     try {
       await Session.destroy({ where: { id: sessionId } });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
+  res.status(200).send();
 };

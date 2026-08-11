@@ -1,81 +1,172 @@
-# Recipe Backend with Node
+# Scrum System — Backend
 
 ![Coverage](./badges/coverage.svg)
 
-This application allows users to create and maintain a list of recipes that have steps and ingredients. Please visit https://github.com/mattmiller64/recipe-frontend for the Vue 3 frontend repository.
+A Node.js / Express REST API for a scrum project-management application with a Vue 3 frontend and an AI-powered chatbot backed by an MCP (Model Context Protocol) server.
 
-#### Please note:
-
-- You will need to create a database and be able to run it locally.
+---
 
 ## Project Setup
 
-1. Clone the project into your **XAMPP/xamppfiles/htdocs** directory.
+### Prerequisites
 
-```
-git clone https://github.com/mattmiller64/recipe-backend.git
-```
+- Node.js ≥ 18
+- MySQL (or MariaDB)
 
-2. Install the project.
+### 1 — Install dependencies
 
-```
+```bash
 npm install
 ```
 
-3. Configure **Apache** to point to **Node** for API requests.
-   - We recommend using XAMPP to serve this project.
-   - In XAMPP, find the **Edit/Configure** button for **Apache**.
-   - Edit the **conf** file, labeled **httpd.conf**.
-   - It may warn you when opening it but open it anyway.
-   - Add the following line as the **last line**:
+### 2 — Create a `.env` file
 
-   ```
-   ProxyPass /scrumapi http://localhost:3200/scrumapi
-   ```
+Copy the example and fill in your values:
 
-   - Find the following line and remove the **#** at the front of the line.
-
-   ```
-   LoadModule proxy_http_module modules/mod_proxy_http.so
-   LoadModule proxy_http2_module modules/mod_proxy_http2.so
-   ```
-
-   - Save the file.
-   - **Restart Apache** and exit XAMPP.
-
-4. Make a local **recipe_db** database.
-   - Create a schema/database.
-   - The Sequelize in this project will make all the tables for you.
-
-5. Add a local **.env** file and make sure that the **database** variables are correct.
-   - DB_HOST = 'localhost'
-   - DB_PW = '**your-local-database-password**'
-   - DB_USER = '**your-local-database-username**' (usually "root")
-   - DB_NAME = '**your-local-database-name**' (example: "recipe_db")
-   - SECRET_KEY = 'xT1tdO3CfMH01pjxC+guN1LWSt2nKvr5td6KUpw7Czg='
-
-6. Initialize the database (optional).
-
-   This project includes a seed and verification script at `scripts/init-db.js`. It creates sample data and runs a quick CRUD check.
-
-```
-npm run init-db
+```bash
+cp .env.example .env
 ```
 
-If you want to preserve existing tables and avoid dropping them, run:
+Required variables:
 
-```
-npm run init-db:keep
+| Variable | Description |
+|---|---|
+| `DB_HOST` | Database host (usually `localhost`) |
+| `DB_USER` | Database username |
+| `DB_PW` | Database password |
+| `DB_NAME` | Database name (e.g. `scrum_db`) |
+| `SECRET_KEY` | Base-64 JWT signing secret |
+| `COHERE_API_KEY` | Cohere API key — get one free at [dashboard.cohere.com](https://dashboard.cohere.com/api-keys) |
+
+> **Never commit `.env`** — it is listed in `.gitignore`.
+
+### 3 — Initialize the database
+
+Creates tables and optionally seeds sample data:
+
+```bash
+npm run init-db          # create tables + seed data
+npm run init-db:keep     # keep existing tables, only seed missing data
+npm run init-db:wipe     # drop all tables then recreate
 ```
 
-To force a full table wipe and recreate everything explicitly:
+### 4 — Start the backend
 
-```
-npm run init-db:wipe
-```
-
-7. Compile and run the project locally.
-
-```
+```bash
 npm run start
+```
+
+The API is available at `http://localhost:3200/scrumapi`.
+
+---
+
+## MCP Integration
+
+### What is MCP?
+
+The **Model Context Protocol** is a standard that lets an AI assistant call tools in an application. Instead of the AI inventing answers, it calls a named tool, gets real data back, and reasons over it.
+
+### How it works in this project
+
+```
+User → ChatWidget → POST /scrumapi/chat
+     → chat.controller.js (Cohere AI)
+     → MCP client (@modelcontextprotocol/sdk)
+     → app/mcp/server.mjs (stdio, Node.js)
+     → Sequelize models → MySQL database
+     → structured result → Cohere → chatbot reply
+```
+
+The MCP server (`app/mcp/server.mjs`) is spawned once as a child process by the chat controller. It talks directly to the database via Sequelize — no HTTP hop. Authentication is enforced at the `/chat` HTTP route (Bearer token required); the MCP server itself is only accessible through that trusted controller.
+
+### Available MCP tools
+
+| Tool | Description |
+|---|---|
+| `list_projects` | All projects |
+| `get_project` | Single project details |
+| `list_stories` | All stories for a project (column, sprint, assignees) |
+| `list_sprints` | All sprints for a project ordered by start date |
+| `list_columns` | Storyboard columns in display order |
+| `get_story_details` | Full details for one story |
+| `get_story_pull_request` | GitHub branch linked to a story |
+| `create_user_story` | Create a new user story *(confirms first)* |
+| `move_user_story` | Move a story to a different column *(confirms first)* |
+| `assign_user_story` | Assign a user to a story *(confirms first)* |
+
+> **Note:** `add_acceptance_criteria` is not implemented because there is no dedicated `acceptanceCriteria` table in the current schema. Acceptance criteria can be added to the story `description` field manually.
+
+### MCP resources
+
+| Resource URI | Description |
+|---|---|
+| `project://{projectId}/backlog` | Stories in the first (Backlog) column |
+| `project://{projectId}/active-sprint` | Active sprint and its stories |
+
+### MCP prompts
+
+| Prompt | Description |
+|---|---|
+| `acceptance_criteria` | Generate Given/When/Then criteria for a feature |
+| `sprint_summary` | Summarize sprint progress for a project |
+| `blocked_work` | Identify blockers, unassigned stories, overdue sprints |
+
+---
+
+## Running the chatbot
+
+1. Ensure the backend is running (`npm run start`).
+2. Start the Vue frontend (see the frontend repository).
+3. Open any project workspace — the chat button appears in the bottom-right corner.
+
+The MCP server is started automatically by the backend when the first chat message arrives; no manual step is needed.
+
+### Example chatbot requests
+
+- "List my projects."
+- "Show the sprints for project 3."
+- "Summarize the active sprint."
+- "Which stories are unassigned?"
+- "How many story points are in each column?"
+- "Create a user story for the login-page error."
+- "Move story 12 to In Progress."
+
+---
+
+## Testing with MCP Inspector
+
+The Inspector lets you call MCP tools directly in a browser, without going through the chatbot:
+
+```bash
+npx --yes @modelcontextprotocol/inspector node app/mcp/server.mjs
+```
+
+Open the printed URL, click **Connect**, then try the **Tools** tab.
+
+> Requires the database to be running so Sequelize can connect.
+
+---
+
+## Running tests
+
+```bash
+npm test            # run all tests once
+npm run coverage    # run tests with coverage report
+```
+
+MCP tool tests live in `app/mcp/tools.test.mjs`. They mock all Sequelize calls so no database connection is needed.
+
+---
+
+## Project structure (MCP-related files)
+
+```
+app/
+  controllers/
+    chat.controller.js   # Cohere AI + MCP client, handles POST /scrumapi/chat
+  mcp/
+    server.mjs           # MCP server — registers tools, resources, prompts
+    tools.mjs            # Tool handler functions (testable independently)
+    tools.test.mjs       # Vitest tests for every tool
+.env.example             # Template for required environment variables
 ```
