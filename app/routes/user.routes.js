@@ -9,6 +9,9 @@ module.exports = (app) => {
   // Retrieve all Users
   router.get("/users/", User.findAll);
 
+  // Retrieve users who share a project with the given user
+  router.get("/users/related/:userId", [authenticateRoute], User.findRelated);
+
   // Retrieve a single User with id
   router.get("/users/:id", User.findOne);
 

@@ -132,6 +132,36 @@ exports.findOne = async (req, res) => {
   }
 };
 
+// Find all users who share a project with the specified user
+exports.findRelated = async (req, res) => {
+  const id = parseInt(req.params.userId, 10);
+
+  try {
+    const memberships = await db.projectMembership.findAll({
+      where: { userId: id },
+    });
+    const projectIds = memberships.map((m) => m.projectId);
+
+    const relatedUserIds = new Set([id]);
+    if (projectIds.length > 0) {
+      const related = await db.projectMembership.findAll({
+        where: { projectId: { [Op.in]: projectIds } },
+        attributes: ["userId"],
+      });
+      related.forEach((r) => relatedUserIds.add(r.userId));
+    }
+
+    const data = await User.findAll({
+      where: { id: { [Op.in]: Array.from(relatedUserIds) } },
+    });
+    res.send(data);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Error retrieving related users.",
+    });
+  }
+};
+
 // Find a single User with an email
 exports.findByEmail = async (req, res) => {
   const email = req.params.email;
@@ -228,6 +258,18 @@ exports.delete = async (req, res) => {
   const id = req.params.id;
 
   try {
+    const targetUser = await User.findByPk(id, { attributes: ["role"] });
+    if (!targetUser) {
+      return res.status(404).send({
+        message: `Cannot delete User with id = ${id}. Maybe User was not found!`,
+      });
+    }
+
+    const requester = await User.findByPk(req.userId, { attributes: ["role"] });
+    if (requester?.role === "lead" && targetUser?.role === "admin") {
+      return res.status(403).send({ message: "Project leads cannot delete admin users." });
+    }
+
     const number = await User.destroy({
       where: { id: id },
     });
