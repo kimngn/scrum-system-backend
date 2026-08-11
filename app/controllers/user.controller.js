@@ -100,7 +100,27 @@ exports.create = async (req, res) => {
 // Retrieve all Users from the database.
 exports.findAll = async (req, res) => {
   const id = req.query.id;
-  var condition = id ? { id: { [Op.like]: `%${id}%` } } : null;
+  const name = req.query.name;
+  const role = req.query.role;
+
+  var conditions = [];
+
+  if (id) {
+    conditions.push({ id: { [Op.like]: `%${id}%` } });
+  }
+  if (name) {
+    conditions.push({
+      [Op.or]: [
+        { firstName: { [Op.like]: `%${name}%` } },
+        { lastName: { [Op.like]: `%${name}%` } },
+      ],
+    });
+  }
+  if (role) {
+    conditions.push({ role: role });
+  }
+
+  var condition = conditions.length > 0 ? { [Op.and]: conditions } : {};
 
   try {
     const data = await User.findAll({ where: condition });
@@ -135,6 +155,8 @@ exports.findOne = async (req, res) => {
 // Find all users who share a project with the specified user
 exports.findRelated = async (req, res) => {
   const id = parseInt(req.params.userId, 10);
+  const name = req.query.name;
+  const role = req.query.role;
 
   try {
     const memberships = await db.projectMembership.findAll({
@@ -151,8 +173,24 @@ exports.findRelated = async (req, res) => {
       related.forEach((r) => relatedUserIds.add(r.userId));
     }
 
+    var conditions = [{ id: { [Op.in]: Array.from(relatedUserIds) } }];
+
+    if (name) {
+      conditions.push({
+        [Op.or]: [
+          { firstName: { [Op.like]: `%${name}%` } },
+          { lastName: { [Op.like]: `%${name}%` } },
+        ],
+      });
+    }
+    if (role) {
+      conditions.push({ role: role });
+    }
+
+    var condition = { [Op.and]: conditions };
+
     const data = await User.findAll({
-      where: { id: { [Op.in]: Array.from(relatedUserIds) } },
+      where: condition,
     });
     res.send(data);
   } catch (err) {

@@ -38,12 +38,17 @@ exports.create = async (req, res) => {
   try {
     const data = await Project.create(project);
 
-    // Adds the project's creator as a lead.
-    await ProjectMembership.create({
-      userId: data.userId,
-      projectId: data.id,
-      role: "lead",
-    });
+    // Get the creator's role to determine if they should be auto-assigned as lead
+    const creator = await db.user.findByPk(data.userId, { attributes: ["role"] });
+
+    // Only auto-assign as lead if the creator is not an admin
+    if (creator && creator.role !== "admin") {
+      await ProjectMembership.create({
+        userId: data.userId,
+        projectId: data.id,
+        role: "lead",
+      });
+    }
 
     // Adds the default storyboard columns.
     for (let i = 0; i < defaultColumnTitles.length; i++) {
@@ -62,23 +67,61 @@ exports.create = async (req, res) => {
 
 exports.findAllForUser = async (req, res) => {
   const userId = req.params.userId;
+  const name = req.query.name;
+  const status = req.query.status;
+
   try {
     const membershipProjectIds = await ProjectMembership.findAll({
       where: { userId: userId },
       attributes: ["projectId"],
     }).then(rows => rows.map(r => r.projectId));
 
-    const data = await Project.findAll({
-      where: {
+    var conditions = [
+      {
         [Op.or]: [
           { userId: userId },
           { id: { [Op.in]: membershipProjectIds } },
         ],
       },
+    ];
+
+    if (name) {
+      conditions.push({ name: { [Op.like]: `%${name}%` } });
+    }
+    if (status) {
+      conditions.push({ status: status });
+    }
+
+    var condition = { [Op.and]: conditions };
+
+    const data = await Project.findAll({
+      where: condition,
       include: [{ model: Sprint, as: "sprint", required: false }],
       order: [["name", "ASC"]],
     });
-    res.send(data);
+
+    // Add project-specific role for each project
+    const memberships = await ProjectMembership.findAll({
+      where: { userId: userId },
+    });
+
+    const membershipMap = {};
+    memberships.forEach(m => {
+      membershipMap[m.projectId] = m.role;
+    });
+
+    const dataWithRoles = data.map(project => {
+      const projectData = project.toJSON();
+      // If user is the creator, they have admin-like access
+      if (projectData.userId === parseInt(userId)) {
+        projectData.userRole = 'creator';
+      } else {
+        projectData.userRole = membershipMap[projectData.id] || 'member';
+      }
+      return projectData;
+    });
+
+    res.send(dataWithRoles);
   } catch (err) {
     res.status(500).send({ message: err.message || "Error retrieving projects." });
   }
@@ -138,8 +181,23 @@ exports.deleteAll = async (req, res) => {
   }
 };
 exports.findAll = async (req, res) => {
+  const name = req.query.name;
+  const status = req.query.status;
+
+  var conditions = [];
+
+  if (name) {
+    conditions.push({ name: { [Op.like]: `%${name}%` } });
+  }
+  if (status) {
+    conditions.push({ status: status });
+  }
+
+  var condition = conditions.length > 0 ? { [Op.and]: conditions } : {};
+
   try {
     const data = await Project.findAll({
+      where: condition,
       include: [{ model: Sprint, as: "sprint", required: false }],
       order: [["name", "ASC"]],
     });
