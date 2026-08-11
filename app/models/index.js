@@ -26,6 +26,7 @@ db.projectMembership = require("./projectMembership.model.js")(sequelize, Sequel
 db.storyAssignee = require("./storyAssignee.model.js")(sequelize, Sequelize);
 db.branch = require("./branch.model.js")(sequelize, Sequelize);
 db.retrospective = require("./retrospective.model.js")(sequelize, Sequelize);
+db.acceptanceCriteria = require("./acceptanceCriteria.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session, {
@@ -179,5 +180,30 @@ db.retrospective.belongsTo(db.sprint, {
   foreignKey: "sprintId",
   as: "sprint",
 });
+
+//for A/C
+db.userStory.hasMany(
+  db.acceptanceCriteria,
+  {
+    as: "acceptanceCriteria",
+    foreignKey: {
+      name: "userStoryId",
+      allowNull: false,
+    },
+    onDelete: "CASCADE",
+  }
+);
+
+db.acceptanceCriteria.belongsTo(
+  db.userStory,
+  {
+    as: "userStory",
+    foreignKey: {
+      name: "userStoryId",
+      allowNull: false,
+    },
+    onDelete: "CASCADE",
+  }
+);
 
 module.exports = db;
