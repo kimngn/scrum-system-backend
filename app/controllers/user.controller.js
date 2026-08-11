@@ -258,6 +258,18 @@ exports.delete = async (req, res) => {
   const id = req.params.id;
 
   try {
+    const targetUser = await User.findByPk(id, { attributes: ["role"] });
+    if (!targetUser) {
+      return res.status(404).send({
+        message: `Cannot delete User with id = ${id}. Maybe User was not found!`,
+      });
+    }
+
+    const requester = await User.findByPk(req.userId, { attributes: ["role"] });
+    if (requester?.role === "lead" && targetUser?.role === "admin") {
+      return res.status(403).send({ message: "Project leads cannot delete admin users." });
+    }
+
     const number = await User.destroy({
       where: { id: id },
     });

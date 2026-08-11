@@ -107,6 +107,7 @@ authenticateRoute = async (req, res, next) => {
         console.log(session >= Date.now());
         console.log(Date.now());
         if (session.expirationDate >= Date.now()) {
+          req.userId = session.userId;
           next();
           return;
         } else {

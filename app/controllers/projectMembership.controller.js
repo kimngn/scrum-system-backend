@@ -38,9 +38,16 @@ exports.findAllForProject = async (req, res) => {
 exports.delete = async (req, res) => {
   const id = req.params.id;
   try {
-    const membership = await ProjectMembership.findByPk(id);
+    const membership = await ProjectMembership.findByPk(id, {
+      include: [{ model: db.user, as: "user", attributes: ["id", "role"] }],
+    });
     if (!membership) {
       return res.status(404).send({ message: `Cannot find membership with id=${id}.` });
+    }
+
+    const requester = await db.user.findByPk(req.userId, { attributes: ["role"] });
+    if (requester?.role === "lead" && membership.user?.role === "admin") {
+      return res.status(403).send({ message: "Project leads cannot remove admin users from projects." });
     }
 
     await membership.destroy();
