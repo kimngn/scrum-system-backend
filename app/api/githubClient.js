@@ -51,7 +51,7 @@ async function getShaAndDefaultBranch(token, owner, repoName) {
 
   return {
     sha: branch.data.commit.sha,
-    ref: `refs/heads/${defaultBranch}`,
+    ref: `refs/heads/${defaultBranch}`, // need ref for updates and deletions
   };
 }
 
