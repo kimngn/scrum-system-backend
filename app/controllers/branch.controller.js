@@ -11,6 +11,10 @@ exports.create = async (req, res) => {
     return res.status(400).send({ message: "User story ID cannot be empty!" });
   } else if (req.body.columnId === undefined) {
     return res.status(400).send({ message: "Column ID cannot be empty!" });
+  } else if (req.body.userStoryId === undefined) {
+    return res.status(400).send({ message: "Ref cannot be empty!" });
+  } else if (req.body.columnId === undefined) {
+    return res.status(400).send({ message: "Sha cannot be empty!" });
   }
 
   const branch = {

@@ -37,6 +37,15 @@ async function getBranches(token, owner, repoName) {
   );
 }
 
+async function getShaFromMain(token, owner, repoName) {
+  const api = useGithubClient(token);
+  const response = await api.get(`/repos/${owner}/${repoName}/branches/main`);
+
+  return {
+    sha: response.data.commit.sha,
+  };
+}
+
 const getPullRequests = async (token, owner, repoName, branchName) => {
   console.log("OWNER:" + owner);
   console.log("branchName:" + branchName);
@@ -83,6 +92,7 @@ const postPullRequest = async (story, pr) => {
 };
 
 module.exports = {
+  getShaFromMain,
   getBranches,
   getPullRequests,
   getRepoData,

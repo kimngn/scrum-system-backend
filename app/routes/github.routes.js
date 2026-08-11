@@ -8,6 +8,7 @@ var router = require("express").Router();
 const {
   getRepoData,
   getBranches,
+  getShaFromMain,
   getPullRequests,
 } = require("../api/githubClient");
 
@@ -69,6 +70,39 @@ module.exports = (app) => {
       if (err.response?.status === 401 || 404) {
         return res.status(400).json({
           message: "Failed to retrieve branches.",
+        });
+      }
+    }
+  });
+
+  router.post("/api/github/main", async (req, res) => {
+    const repoUrl = req.body.repoUrl;
+    const token = req.body.token;
+
+    if (!token) {
+      // make sure the project actually has a token
+      return res.status(400).json({
+        message: "No personal access token associated with this project.",
+      });
+    }
+    // extract owner and repo
+    const url = repoUrl.replace("https://github.com/", "");
+    const [owner, repoName] = url.split("/");
+
+    try {
+      const response = await githubClient.getShaFromMain(
+        token,
+        owner,
+        repoName,
+      );
+      console.log("Main branch's sha:", response.sha);
+
+      return res.json(response);
+    } catch (err) {
+      if (err.response?.status === 401 || err.response?.status === 404) {
+        return res.status(400).json({
+          message:
+            "Failed to retrieve main branch's sha." + err.response.data.message,
         });
       }
     }
