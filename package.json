@@ -12,7 +12,7 @@
     "init-db": "node scripts/init-db.js",
     "init-db:wipe": "node scripts/init-db.js --wipe",
     "init-db:keep": "node scripts/init-db.js --no-wipe",
-    "bundle": "mkdir -p deploy && cp -r app server.js package.json package-lock.json scrum-system-backend.service .env deploy"
+    "bundle": "mkdir -p deploy && cp -r app scripts server.js package.json package-lock.json scrum-system-backend.service .env deploy"
   },
   "keywords": [
     "node.js",
